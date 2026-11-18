@@ -1,0 +1,86 @@
+// ── Bootstrap custom variables (before Bootstrap import) ─────────────────────
+$font-family-base: 'Outfit', 'Helvetica Neue', Arial, sans-serif;
+$font-size-base: 1rem;
+$body-color: #16181a;
+$body-bg: #f3f4f2;
+$headings-margin-bottom: 0;
+$paragraph-margin-bottom: 0;
+
+@import 'bootstrap/scss/bootstrap';
+
+html, body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background:
+    radial-gradient(ellipse 120% 80% at 10% -10%, rgba(45, 90, 78, 0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 90% 60% at 100% 0%, rgba(184, 154, 106, 0.1) 0%, transparent 50%),
+    #f3f4f2;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  &:hover {
+    color: inherit;
+  }
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font-family: inherit;
+}
+
+#app {
+  min-width: 320px;
+}
+
+.rise {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.rise.rise-in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .rise.rise-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+:root {
+  --color-accent: #2d5a4e;
+  --color-accent-soft: #b89a6a;
+  --color-primary: #1a2421;
+  --color-muted: #6b7570;
+  --color-surface: #f3f4f2;
+  --color-surface-elevated: #ffffff;
+  --color-gradient-start: #1a3d36;
+  --color-gradient-mid: #2d5a4e;
+  --color-gradient-end: #b89a6a;
+  --font-display: 'Source Serif 4', Georgia, serif;
+  --font-sans: 'Outfit', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.gradient-text {
+  --gradient-start: var(--color-gradient-start);
+  --gradient-end: var(--color-gradient-end);
+  background-image: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}

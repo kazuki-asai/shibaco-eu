@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://shiba-co.com/sitemap.xml
