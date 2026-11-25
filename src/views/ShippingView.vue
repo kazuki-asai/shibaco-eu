@@ -9,7 +9,7 @@
       <section class="section">
         <h2>Shipping rates</h2>
         <button class="accordion-trigger" @click="tableOpen = !tableOpen" :aria-expanded="tableOpen">
-          <span>View rates by region</span>
+          <span>View rates by country</span>
           <svg class="accordion-icon" :class="{ open: tableOpen }" width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M2 5l5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -19,14 +19,14 @@
             <table class="info-table">
               <thead>
                 <tr>
-                  <th>Region</th>
+                  <th>Country</th>
                   <th>Shipping</th>
                 </tr>
               </thead>
               <tbody>
                 <template v-if="shippingList.length > 0">
-                  <tr v-for="item in shippingList" :key="item.prefectureId ?? item.prefectureName">
-                    <td>{{ item.prefectureName }}</td>
+                  <tr v-for="item in shippingList" :key="item.countryName">
+                    <td>{{ item.countryName }}</td>
                     <td>
                       <strong v-if="item.shippingFee === 0">Free shipping</strong>
                       <span v-else>{{ item.shippingFee != null ? `¥${item.shippingFee.toLocaleString()} JPY` : '—' }}</span>
@@ -102,7 +102,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useHead } from '@unhead/vue'
-import { fetchAllPrefectureShippings } from '@/api/prefectureShipping'
+import { fetchOverseasShippings } from '@/api/overseasShipping'
 
 useHead({
   title: 'Shipping | shibaco',
@@ -121,7 +121,7 @@ const tableOpen = ref(false)
 
 onMounted(async () => {
   try {
-    shippingList.value = await fetchAllPrefectureShippings()
+    shippingList.value = await fetchOverseasShippings()
   } catch {
     // keep empty on error
   } finally {

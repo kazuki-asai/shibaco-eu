@@ -36,10 +36,8 @@
 <script>
 import { computed, onMounted, ref, watch } from 'vue'
 import axios from 'axios'
-import { fetchPrefectureShipping } from '@/api/prefectureShipping'
+import { fetchOverseasShippings } from '@/api/overseasShipping'
 import { useCart } from '@/composables/useCart'
-import { usePrefectures } from '@/composables/usePrefectures'
-import { normalizePrefectureId } from '@/utils/prefectureId'
 import CheckoutForm from '@/components/checkout/CheckoutForm.vue'
 import OrderSummary from '@/components/checkout/OrderSummary.vue'
 
@@ -60,16 +58,33 @@ export default {
     const shippingFee = ref(null)
     const shippingLoading = ref(false)
     const shippingFetchError = ref(null)
-    let shippingRequestSeq = 0
-    const {
-      prefectureOptions,
-      prefecturesLoading,
-      prefecturesLoadError,
-      loadPrefectures,
-    } = usePrefectures()
+    const overseasShippings = ref([])
+    const prefecturesLoading = ref(false)
+    const prefecturesLoadError = ref(null)
 
-    onMounted(() => {
-      loadPrefectures()
+    const prefectureOptions = computed(() =>
+      overseasShippings.value.map((item) => ({
+        value: item.countryName,
+        label: item.countryName,
+      })),
+    )
+
+    onMounted(async () => {
+      prefecturesLoading.value = true
+      prefecturesLoadError.value = null
+      try {
+        overseasShippings.value = await fetchOverseasShippings()
+        if (!overseasShippings.value.length) {
+          prefecturesLoadError.value = 'Could not load the country list.'
+        }
+      } catch (e) {
+        prefecturesLoadError.value =
+          'Could not load the country list. Please refresh the page or try again later.'
+        overseasShippings.value = []
+        console.error(e)
+      } finally {
+        prefecturesLoading.value = false
+      }
     })
 
     const form = ref({
@@ -115,45 +130,28 @@ export default {
     })
 
     watch(
-      () => [needsSeparateShipping.value, form.value.prefecture],
-      async ([needs, pref]) => {
+      () => [needsSeparateShipping.value, form.value.prefecture, overseasShippings.value],
+      ([needs, country]) => {
         shippingFetchError.value = null
+        shippingLoading.value = false
         if (!needs) {
           shippingFee.value = null
-          shippingLoading.value = false
           return
         }
 
-        const id = normalizePrefectureId(pref)
-        if (id == null) {
-          shippingLoading.value = false
+        if (country === '' || country == null) {
           shippingFee.value = null
-          if (pref !== '' && pref != null) {
-            shippingFetchError.value =
-              'A region ID is required to calculate shipping. Please check that the region list loaded correctly.'
-          }
           return
         }
 
-        const seq = ++shippingRequestSeq
-        shippingLoading.value = true
-        shippingFee.value = null
-
-        try {
-          const fee = await fetchPrefectureShipping(id)
-          if (seq !== shippingRequestSeq) return
-          if (fee === null) {
-            shippingFetchError.value = 'Could not retrieve shipping cost.'
-          } else {
-            shippingFee.value = fee
-          }
-        } catch (e) {
-          if (seq !== shippingRequestSeq) return
-          shippingFetchError.value = 'Failed to retrieve shipping cost.'
-          console.error(e)
-        } finally {
-          if (seq === shippingRequestSeq) shippingLoading.value = false
+        const match = overseasShippings.value.find((item) => item.countryName === country)
+        if (!match || match.shippingFee == null) {
+          shippingFee.value = null
+          shippingFetchError.value = 'Could not retrieve shipping cost.'
+          return
         }
+
+        shippingFee.value = match.shippingFee
       },
       { immediate: true },
     )
