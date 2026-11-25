@@ -31,6 +31,7 @@ import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useHead } from '@unhead/vue'
 import axios from 'axios'
+import { displayProductTag } from '@/utils/productTag'
 
 const SHOP_CODE = import.meta.env.VITE_SHOP_CODE
 
@@ -62,6 +63,7 @@ export default {
       const items = res.data.products ?? res.data
       products.value = items.map(product => ({
         ...product,
+        tag: displayProductTag(product.tag),
         images: (product.images || []).map(img =>
           img.replace(/^http:\/\/(localhost|host\.docker\.internal):3001/, '')
         ),

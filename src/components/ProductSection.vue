@@ -29,6 +29,7 @@
 <script>
 import { ref } from 'vue'
 import axios from 'axios'
+import { displayProductTag } from '@/utils/productTag'
 
 export default {
   setup() {
@@ -42,6 +43,7 @@ export default {
       const items = res.data.products ?? res.data
       newArrivals.value = items.map(product => ({
         ...product,
+        tag: displayProductTag(product.tag),
         images: (product.images || []).map(img =>
           img.replace(/^http:\/\/(localhost|host\.docker\.internal):3001/, '')
         ),

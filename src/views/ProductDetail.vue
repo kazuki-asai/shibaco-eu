@@ -19,6 +19,7 @@ import axios from 'axios'
 import ProductDetailLeftArea from '@/components/ProductDetail/ProductDetailLeftArea.vue'
 import ProductDetailRightArea from '@/components/ProductDetail/ProductDetailRightArea.vue'
 import { useCart } from '@/composables/useCart'
+import { displayProductTag } from '@/utils/productTag'
 
 const SITE_ORIGIN = 'https://eu.shiba-co.com'
 
@@ -104,6 +105,7 @@ export default {
       const p = res.data
       product.value = {
         ...p,
+        tag: displayProductTag(p.tag),
         images: (p.images || []).map(img =>
           img.replace(/^http:\/\/(localhost|host\.docker\.internal):3001/, '')
         ),
