@@ -2,7 +2,8 @@
   <div class="product-info">
     <span v-if="product.tag" class="product-tag">{{ product.tag }}</span>
     <h1 class="product-name">{{ product.name }}</h1>
-    <p class="product-price">¥ {{ product.price }} JPY</p>
+    <p class="product-price">{{ formatYen(product.price) }}</p>
+    <p class="product-note">Charged in Japanese yen. Made to order — we usually ship within 5–10 business days.</p>
 
     <div v-if="product.colors && product.colors.length" class="option-group">
       <p class="option-label">Colour: <span class="option-selected">{{ selectedColor ? selectedColor.name : '' }}</span></p>
@@ -56,6 +57,7 @@
 <script>
 import { ref, computed } from 'vue'
 import DeliveryRulesModal from './DeliveryRulesModal.vue'
+import { formatYen } from '@/utils/money'
 
 export default {
   components: { DeliveryRulesModal },
@@ -105,6 +107,7 @@ export default {
       isDeliveryModalOpen,
       isLight,
       addToCart,
+      formatYen,
     }
   },
 }
@@ -132,7 +135,15 @@ export default {
   font-size: 1.1rem;
   font-weight: 600;
   color: #1a1a1a;
-  margin: 0 0 24px;
+  margin: 0;
+}
+
+.product-note {
+  margin: 6px 0 24px;
+  max-width: 42ch;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #24312d;
 }
 
 .product-description {

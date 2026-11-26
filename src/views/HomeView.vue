@@ -5,6 +5,7 @@
   <VideoShowcase />
   <CategorySection />
   <PurchaseProcessSection />
+  <ShippingCountriesStrip />
   <BrandMessage />
 </template>
 
@@ -28,5 +29,6 @@ import ProductSection from '../components/ProductSection.vue'
 import VideoShowcase from '../components/VideoShowcase.vue'
 import CategorySection from '../components/CategorySection.vue'
 import PurchaseProcessSection from '../components/PurchaseProcessSection.vue'
+import ShippingCountriesStrip from '../components/ShippingCountriesStrip.vue'
 import BrandMessage from '../components/BrandMessage.vue'
 </script>

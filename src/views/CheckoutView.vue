@@ -41,14 +41,6 @@ import { useCart } from '@/composables/useCart'
 import CheckoutForm from '@/components/checkout/CheckoutForm.vue'
 import OrderSummary from '@/components/checkout/OrderSummary.vue'
 
-function resolvePrefectureLabel(selected, options) {
-  if (selected === '' || selected == null) return ''
-  const opt = options.find(
-    (o) => o.value === selected || String(o.value) === String(selected),
-  )
-  return opt?.label ?? String(selected)
-}
-
 export default {
   components: { CheckoutForm, OrderSummary },
   setup() {
@@ -63,10 +55,12 @@ export default {
     const prefecturesLoadError = ref(null)
 
     const prefectureOptions = computed(() =>
-      overseasShippings.value.map((item) => ({
-        value: item.countryName,
-        label: item.countryName,
-      })),
+      overseasShippings.value
+        .filter((item) => item.prefectureName)
+        .map((item) => ({
+          value: item.prefectureName,
+          label: item.countryName,
+        })),
     )
 
     onMounted(async () => {
@@ -144,7 +138,7 @@ export default {
           return
         }
 
-        const match = overseasShippings.value.find((item) => item.countryName === country)
+        const match = overseasShippings.value.find((item) => item.prefectureName === country)
         if (!match || match.shippingFee == null) {
           shippingFee.value = null
           shippingFetchError.value = 'Could not retrieve shipping cost.'
@@ -164,13 +158,7 @@ export default {
       try {
         const origin = window.location.origin
         const shop_code = import.meta.env.VITE_SHOP_CODE
-        const customer = {
-          ...form.value,
-          prefecture: resolvePrefectureLabel(
-            form.value.prefecture,
-            prefectureOptions.value,
-          ),
-        }
+        const customer = { ...form.value }
         const { data } = await axios.post('/api/checkouts', {
           shop_code,
           customer,

@@ -17,7 +17,7 @@
                 <span v-if="item.colorName">Colour: {{ item.colorName }}</span>
                 <span v-if="item.sizeName">　Size: {{ item.sizeName }}</span>
               </p>
-              <p class="item-price">¥ {{ item.price }} JPY</p>
+              <p class="item-price">{{ formatYen(item.price) }}</p>
             </div>
             <div class="item-qty">
               <button @click="decrement(index)">－</button>
@@ -29,7 +29,8 @@
         </ul>
 
         <div class="summary">
-          <p class="total">Total: ¥ {{ total }} JPY</p>
+          <p class="total">Total: {{ formatYen(total) }}</p>
+          <p class="yen-note">Charged in Japanese yen.</p>
           <router-link to="/checkout" class="checkout-btn">Proceed to checkout</router-link>
         </div>
       </template>
@@ -40,13 +41,14 @@
 <script>
 import { computed } from 'vue'
 import { useCart } from '@/composables/useCart'
+import { formatYen } from '@/utils/money'
 
 export default {
   setup() {
     const { cart, removeFromCart, updateQuantity } = useCart()
 
     const total = computed(() =>
-      cart.value.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString()
+      cart.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
     )
 
     const increment = (index) => updateQuantity(index, cart.value[index].quantity + 1)
@@ -55,7 +57,7 @@ export default {
     }
     const remove = (index) => removeFromCart(index)
 
-    return { cart, total, increment, decrement, remove }
+    return { cart, total, increment, decrement, remove, formatYen }
   },
 }
 </script>
@@ -156,7 +158,14 @@ export default {
 .total {
   font-size: 1.1rem;
   font-weight: 700;
-  margin-bottom: 16px;
+  margin-bottom: 6px;
+}
+
+.yen-note {
+  margin: 0 0 16px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: #24312d;
 }
 
 .checkout-btn {

@@ -1,5 +1,9 @@
 import axios from 'axios'
 
+const regionNames = typeof Intl.DisplayNames === 'function'
+  ? new Intl.DisplayNames(['en'], { type: 'region' })
+  : null
+
 function parseAmount(value) {
   if (value == null || value === '') return null
   const n = Number(value)
@@ -7,9 +11,21 @@ function parseAmount(value) {
   return Math.round(n)
 }
 
+function englishCountryName(code, fallback) {
+  const iso = String(code ?? '').trim().toUpperCase()
+  if (!regionNames || !/^[A-Z]{2}$/.test(iso)) return fallback
+  try {
+    const name = regionNames.of(iso)
+    return name && name !== iso ? name : fallback
+  } catch {
+    return fallback
+  }
+}
+
 /**
  * GET /api/overseas_shippings
- * Returns { countryName, shippingFee } for each destination.
+ * countryName is the English label for the UI.
+ * prefectureName is the API country name, and the value checkout submits.
  */
 export async function fetchOverseasShippings(signal) {
   const { data } = await axios.get('/api/overseas_shippings', { signal })
@@ -23,10 +39,14 @@ export async function fetchOverseasShippings(signal) {
 
   return list
     .map((item) => {
-      const countryName = String(item?.country_name ?? item?.name ?? '').trim()
-      if (!countryName) return null
+      const code = String(item?.country_code ?? '').trim().toUpperCase()
+      const prefectureName = String(item?.country_name ?? item?.name ?? '').trim()
+      const countryName = englishCountryName(code, prefectureName)
+      if (!countryName && !prefectureName) return null
       return {
-        countryName,
+        id: code || prefectureName || countryName,
+        countryName: countryName || prefectureName,
+        prefectureName,
         shippingFee: parseAmount(item?.amount ?? item?.shipping_fee ?? item?.fee),
       }
     })

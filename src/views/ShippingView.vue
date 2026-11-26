@@ -8,6 +8,7 @@
     <div class="container">
       <section class="section">
         <h2>Shipping rates</h2>
+        <p>Fees are charged in Japanese yen.</p>
         <button class="accordion-trigger" @click="tableOpen = !tableOpen" :aria-expanded="tableOpen">
           <span>View rates by country</span>
           <svg class="accordion-icon" :class="{ open: tableOpen }" width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -25,11 +26,11 @@
               </thead>
               <tbody>
                 <template v-if="shippingList.length > 0">
-                  <tr v-for="item in shippingList" :key="item.countryName">
+                  <tr v-for="item in shippingList" :key="item.id">
                     <td>{{ item.countryName }}</td>
                     <td>
                       <strong v-if="item.shippingFee === 0">Free shipping</strong>
-                      <span v-else>{{ item.shippingFee != null ? `¥${item.shippingFee.toLocaleString()} JPY` : '—' }}</span>
+                      <span v-else>{{ item.shippingFee != null ? formatYen(item.shippingFee) : '—' }}</span>
                     </td>
                   </tr>
                 </template>
@@ -73,12 +74,15 @@
 
       <div class="divider"></div>
 
-      <section class="section">
+      <section id="where-we-ship" class="section">
         <h2>Where we ship</h2>
-        <p>
-          This storefront ships to customers across Europe.<br />
-          If your country is missing at checkout, please contact us and we will advise.
+        <p v-if="countryNames.length">
+          We currently ship to {{ countryNames.join(', ') }}.
         </p>
+        <p v-else-if="!loadingShipping">
+          This storefront ships to customers across Europe.
+        </p>
+        <p>If your country is missing at checkout, please contact us and we will advise.</p>
       </section>
 
       <div class="divider"></div>
@@ -100,9 +104,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useHead } from '@unhead/vue'
 import { fetchOverseasShippings } from '@/api/overseasShipping'
+import { formatYen } from '@/utils/money'
 
 useHead({
   title: 'Shipping | shibaco',
@@ -118,6 +123,7 @@ useHead({
 const shippingList = ref([])
 const loadingShipping = ref(true)
 const tableOpen = ref(false)
+const countryNames = computed(() => shippingList.value.map((item) => item.countryName).filter(Boolean))
 
 onMounted(async () => {
   try {
@@ -135,6 +141,10 @@ onMounted(async () => {
 .shipping-page {
   padding-bottom: 80px;
   color: #1a1a1a;
+}
+
+#where-we-ship {
+  scroll-margin-top: 88px;
 }
 
 .page-header {

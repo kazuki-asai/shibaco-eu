@@ -307,7 +307,7 @@ export default {
 
 .footer-bottom p {
   font-size: 0.78rem;
-  color: #7a8a84;
+  color: #b7c4be;
   margin: 0;
 }
 

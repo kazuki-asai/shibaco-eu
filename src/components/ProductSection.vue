@@ -14,7 +14,8 @@
           </RouterLink>
           <div class="product-info">
             <p class="product-name">{{ product.name }}</p>
-            <p class="product-price">¥ {{ product.price }} JPY</p>
+            <p class="product-price">{{ formatYen(product.price) }}</p>
+            <p class="product-note">Charged in Japanese yen. Made to order — we usually ship within 5–10 business days.</p>
           </div>
         </article>
       </div>
@@ -30,6 +31,7 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import { displayProductTag } from '@/utils/productTag'
+import { formatYen } from '@/utils/money'
 
 export default {
   setup() {
@@ -52,6 +54,7 @@ export default {
 
     return {
       newArrivals,
+      formatYen,
     }
   },
 }
@@ -121,7 +124,7 @@ export default {
 .product-tag {
   position: absolute;
   top: 12px;
-  left: 12px;
+  right: 12px;
   background: #1a1a1a;
   color: #fff;
   font-size: 0.68rem;
@@ -163,6 +166,13 @@ export default {
   color: #1a1a1a;
   font-weight: 600;
   margin: 0;
+}
+
+.product-note {
+  margin: 6px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: #24312d;
 }
 
 .center {

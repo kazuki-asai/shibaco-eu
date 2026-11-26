@@ -49,35 +49,38 @@
       </button>
     </div>
 
-    <!-- プログレスバー -->
-    <div class="progress-bars">
-      <button
-        v-for="(_, i) in slides"
-        :key="i"
-        class="progress-bar"
-        :class="{ active: i === current }"
-        @click="goTo(i)"
-        :aria-label="`Slide ${i + 1}`"
-      />
-    </div>
+    <div class="hero-dock">
+      <div class="progress-bars">
+        <button
+          v-for="(_, i) in slides"
+          :key="i"
+          class="progress-bar"
+          :class="{ active: i === current }"
+          @click="goTo(i)"
+          :aria-label="`Slide ${i + 1}`"
+        />
+      </div>
 
-    <!-- ショップ導線 -->
-    <div class="shop-strip">
-      <RouterLink to="/products" class="shop-strip-item shop-strip-item--cta">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-          <line x1="3" y1="6" x2="21" y2="6"/>
-          <path d="M16 10a4 4 0 0 1-8 0"/>
-        </svg>
-        <span>All products</span>
-      </RouterLink>
-      <template v-for="cat in categories" :key="cat.id">
-        <span class="shop-strip-sep" aria-hidden="true"></span>
-        <RouterLink
-          :to="{ path: '/products', query: { category_id: cat.id } }"
-          class="shop-strip-item"
-        >{{ cat.name }}</RouterLink>
-      </template>
+      <div class="shop-strip">
+        <p class="hero-note">Made to order. We print after you order and usually ship within 5–10 business days.</p>
+        <div class="shop-strip-links">
+          <RouterLink to="/products" class="shop-strip-item shop-strip-item--cta">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+            <span>All products</span>
+          </RouterLink>
+          <template v-for="cat in categories" :key="cat.id">
+            <span class="shop-strip-sep" aria-hidden="true"></span>
+            <RouterLink
+              :to="{ path: '/products', query: { category_id: cat.id } }"
+              class="shop-strip-item"
+            >{{ cat.name }}</RouterLink>
+          </template>
+        </div>
+      </div>
     </div>
   </section>
 </template>
@@ -287,27 +290,46 @@ export default {
   font-weight: 500;
 }
 
+.hero-dock {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+}
+
 /* ショップ導線 */
 .shop-strip {
-  position: absolute;
-  bottom: 2px;
-  left: 0;
-  right: 0;
-  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  padding: 10px 7vw 8px;
+  background: rgba(26, 36, 33, 0.88);
+}
+
+.hero-note {
+  margin: 0;
+  text-align: center;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: #f4f7f6;
+}
+
+.shop-strip-links {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  gap: 0;
-  height: 40px;
-  padding: 0 7vw;
-  background: rgba(0, 0, 0, 0.52);
-  backdrop-filter: blur(6px);
+  min-height: 44px;
   overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
+}
+
+.shop-strip-links::-webkit-scrollbar {
+  display: none;
 }
 
 .shop-strip::-webkit-scrollbar {
@@ -316,9 +338,9 @@ export default {
 
 .shop-strip-item {
   flex: 0 0 auto;
-  font-size: 0.68rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.12em;
-  color: rgba(255, 255, 255, 0.65);
+  color: #f4f7f6;
   text-decoration: none;
   padding: 0 16px;
   height: 100%;
@@ -409,12 +431,8 @@ export default {
 
 /* プログレスバー */
 .progress-bars {
-  position: absolute;
-  bottom: 40px;
-  left: 0;
-  right: 0;
   display: flex;
-  z-index: 10;
+  margin-bottom: 4px;
 }
 
 .progress-bar {

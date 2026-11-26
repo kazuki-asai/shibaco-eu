@@ -15,13 +15,13 @@
             <span v-if="item.sizeName"> / {{ item.sizeName }}</span>
           </p>
         </div>
-        <p class="summary-item-price">¥{{ (item.price * item.quantity).toLocaleString() }} JPY</p>
+        <p class="summary-item-price">{{ formatYen(item.price * item.quantity) }}</p>
       </div>
     </div>
     <div class="summary-totals">
       <div class="summary-row">
         <span>Subtotal</span>
-        <span>¥{{ subtotal.toLocaleString() }} JPY</span>
+        <span>{{ formatYen(subtotal) }}</span>
       </div>
       <div class="summary-row shipping-row">
         <span>Shipping</span>
@@ -29,19 +29,22 @@
           <template v-if="!needsSeparateShipping">Free</template>
           <template v-else-if="shippingLoading">Calculating…</template>
           <template v-else-if="shippingError"><span class="shipping-error">{{ shippingError }}</span></template>
-          <template v-else-if="shippingAmount !== null">¥{{ shippingAmount.toLocaleString() }} JPY</template>
+          <template v-else-if="shippingAmount !== null">{{ formatYen(shippingAmount) }}</template>
           <template v-else>—</template>
         </span>
       </div>
       <div class="summary-row total">
         <span>Total</span>
-        <span>¥{{ grandTotal.toLocaleString() }} JPY</span>
+        <span>{{ formatYen(grandTotal) }}</span>
       </div>
+      <p class="yen-note">Charged in Japanese yen.</p>
     </div>
   </div>
 </template>
 
 <script>
+import { formatYen } from '@/utils/money'
+
 export default {
   props: {
     cart: { type: Array, required: true },
@@ -53,6 +56,7 @@ export default {
     shippingError: { type: String, default: null },
   },
   methods: {
+    formatYen,
     onImageError(e) {
       e.target.style.display = 'none'
     },
@@ -66,6 +70,13 @@ export default {
   padding: 24px;
   position: sticky;
   top: 80px;
+}
+
+.yen-note {
+  margin: 12px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: #24312d;
 }
 
 .order-summary h2 {
