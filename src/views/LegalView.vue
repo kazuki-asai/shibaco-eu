@@ -6,17 +6,37 @@
     </div>
 
     <div class="container">
+      <p v-if="shopError" class="load-error">{{ shopError }}</p>
+
       <table class="info-table">
         <tbody>
           <tr v-for="row in items" :key="row.label">
             <th>{{ row.label }}</th>
             <td>
-              <span v-html="row.value" />
+              <span>{{ row.value }}</span>
               <RouterLink v-if="row.link" :to="row.link.to" class="table-link">{{ row.link.label }}</RouterLink>
             </td>
           </tr>
         </tbody>
       </table>
+
+      <section class="section">
+        <h2>Prices and currency</h2>
+        <p>{{ currencyNotice }} {{ dutyNotice }}</p>
+      </section>
+
+      <section class="section">
+        <h2>Delivery</h2>
+        <p>{{ deliveryCopy.summary }} Payment is taken when you place the order. Shipping rates and refused-parcel terms are on the <RouterLink to="/shipping">shipping page</RouterLink>.</p>
+      </section>
+
+      <section class="section">
+        <h2>Withdrawal</h2>
+        <p>
+          Consumers in the EU and EEA have a 14-day right of withdrawal. How to use it, and what happens with faulty goods, is on the
+          <RouterLink to="/returns">returns page</RouterLink>.
+        </p>
+      </section>
 
       <div class="cta">
         <p>Questions? We are happy to help.</p>
@@ -30,6 +50,8 @@
 import { ref, computed, onMounted } from 'vue'
 import { useHead } from '@unhead/vue'
 import axios from 'axios'
+import { currencyNotice, deliveryCopy, dutyNotice } from '@/config/store'
+import { apiErrorMessage } from '@/utils/apiError'
 
 useHead({
   title: 'Legal notice | shibaco',
@@ -43,30 +65,36 @@ useHead({
 })
 
 const shop = ref(null)
+const shopError = ref(null)
+
+function filled(value) {
+  const text = value == null ? '' : String(value).trim()
+  return text || null
+}
 
 onMounted(async () => {
   try {
     const { data } = await axios.get('/api/shop')
     shop.value = data?.shop ?? data
-  } catch {
-    // 取得失敗時は空のまま静的表示
+  } catch (err) {
+    shopError.value = apiErrorMessage(err, 'We could not load these details. Please refresh and try again.')
   }
 })
 
 const items = computed(() => [
-  { label: 'Business name', value: shop.value?.business_name ?? '—' },
-  { label: 'Responsible person', value: shop.value?.manager_name ?? '—' },
-  { label: 'Address', value: shop.value?.address ?? '—' },
-  { label: 'Phone', value: shop.value?.phone_number ?? '—' },
-  { label: 'Email', value: shop.value?.email ?? 'Please use the contact form' },
-  { label: 'Prices', value: 'As shown on each product page (including applicable taxes where displayed)' },
-  { label: 'Additional fees', value: 'See the shipping page for details', link: { to: '/shipping', label: 'View shipping information →' } },
-  { label: 'Payment methods', value: 'Credit card (Visa, Mastercard, American Express, and others via Stripe)' },
+  { label: 'Store', value: filled(shop.value?.name) },
+  { label: 'Seller (legal name)', value: filled(shop.value?.business_name) },
+  { label: 'Represented by', value: filled(shop.value?.manager_name) },
+  { label: 'Address', value: filled(shop.value?.address) },
+  { label: 'Phone', value: filled(shop.value?.phone_number) },
+  { label: 'Email', value: filled(shop.value?.email) },
+  { label: 'Prices', value: 'Shown on each product in Japanese yen (JPY). Checkout charges Japanese yen.' },
+  { label: 'Shipping and import charges', value: 'Shipping is the rate for your country. Import VAT, customs duty, and carrier fees are paid by you on delivery (DAP).', link: { to: '/shipping', label: 'View shipping information →' } },
+  { label: 'Payment methods', value: 'Payment is taken on Stripe Checkout in Japanese yen. The payment page can also show the card brands, wallets, or a converted currency that the payment account has enabled.' },
   { label: 'Payment timing', value: 'Payment is charged when you place your order' },
-  { label: 'Delivery timing', value: 'Ships within 5–10 business days after order confirmation (made to order)' },
-  { label: 'Returns & exchanges', value: 'Made-to-order items cannot be returned for change-of-mind reasons.<br>For defects or incorrect items, contact us within 7 days of delivery.' },
-  { label: 'Recommended browsers', value: 'Latest Chrome, Safari, Firefox, or Edge' },
-])
+  { label: 'Delivery timing', value: deliveryCopy.summary },
+  { label: 'Withdrawal and returns', value: 'EU and EEA consumers can withdraw within 14 days of receiving the goods. Faulty goods are handled separately.', link: { to: '/returns', label: 'View returns →' } },
+].filter((row) => row.value))
 </script>
 
 <style scoped>
@@ -102,6 +130,36 @@ const items = computed(() => [
   max-width: 760px;
   margin: 0 auto;
   padding: 64px 24px 0;
+}
+
+.load-error {
+  margin: 0 0 20px;
+  color: #8a3b3b;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.section h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+
+.section p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: #3a3a3a;
+}
+
+.section a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .info-table {

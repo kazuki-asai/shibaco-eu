@@ -7,7 +7,20 @@
 
     <div class="container">
       <section class="section">
+        <h2>How shipping is charged</h2>
+        <p>
+          The shop charges shipping. The rate is whatever this shop has set for your country.
+          Checkout shows that rate when you choose a country.
+          A country with no rate cannot be ordered. “Free” appears only when the rate really is zero.
+        </p>
+        <DutyNotice class="section-notice" />
+      </section>
+
+      <div class="divider"></div>
+
+      <section class="section">
         <h2>Shipping rates</h2>
+        <p class="section-lead">Rates below are the ones the shop has published. Countries that are not listed are not available yet.</p>
         <button class="accordion-trigger" @click="tableOpen = !tableOpen" :aria-expanded="tableOpen">
           <span>View rates by country</span>
           <svg class="accordion-icon" :class="{ open: tableOpen }" width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -25,19 +38,23 @@
               </thead>
               <tbody>
                 <template v-if="shippingList.length > 0">
-                  <tr v-for="item in shippingList" :key="item.countryName">
+                  <tr v-for="item in shippingList" :key="item.countryCode">
                     <td>{{ item.countryName }}</td>
                     <td>
-                      <strong v-if="item.shippingFee === 0">Free shipping</strong>
-                      <span v-else>{{ item.shippingFee != null ? `¥${item.shippingFee.toLocaleString()} JPY` : '—' }}</span>
+                      <strong v-if="item.status === 'quoted' && item.amount === 0">Free</strong>
+                      <span v-else-if="item.status === 'quoted'">{{ $money(item.amount) }}</span>
+                      <span v-else>Not available</span>
                     </td>
                   </tr>
                 </template>
                 <tr v-else-if="loadingShipping">
                   <td colspan="2" class="table-placeholder">Loading...</td>
                 </tr>
+                <tr v-else-if="loadError">
+                  <td colspan="2" class="table-placeholder">{{ loadError }}</td>
+                </tr>
                 <tr v-else>
-                  <td colspan="2" class="table-placeholder">Unable to load shipping data</td>
+                  <td colspan="2" class="table-placeholder">Shipping rates are not listed yet. We cannot take an order to a country that is not listed.</td>
                 </tr>
               </tbody>
             </table>
@@ -51,8 +68,7 @@
         <h2>Delivery timeframe</h2>
         <p>
           Every shibaco piece is <strong>made to order</strong>.<br />
-          After we confirm your order, we usually ship within <strong>5–10 business days</strong>.<br />
-          International delivery then typically takes about <strong>7–14 days</strong>, depending on destination and customs.
+          {{ deliveryCopy.summary }}
         </p>
         <div class="notice">
           <p><b>Made-to-order items take longer than ready-made stock.</b></p>
@@ -66,7 +82,7 @@
       <section class="section">
         <h2>Courier</h2>
         <p>
-          Orders are shipped with an international courier partner.<br />
+          Orders leave Japan with an international postal or courier service.
           Once your package is on its way, we email you a tracking number.
         </p>
       </section>
@@ -84,11 +100,14 @@
       <div class="divider"></div>
 
       <section class="section">
-        <h2>Delivery attempts</h2>
+        <h2>Delivery attempts and refused parcels</h2>
         <p>
           If you miss a delivery, follow the courier’s instructions for redelivery or pickup.<br />
           Tracking details in your shipping email will include the right next steps for your carrier.
         </p>
+        <div class="notice">
+          <p>This store ships DAP. If you refuse the parcel, or it cannot be delivered and is returned, return shipping and any carrier or customs fees can be deducted from a refund.</p>
+        </div>
       </section>
 
       <div class="cta">
@@ -103,6 +122,9 @@
 import { ref, onMounted } from 'vue'
 import { useHead } from '@unhead/vue'
 import { fetchOverseasShippings } from '@/api/overseasShipping'
+import { deliveryCopy } from '@/config/store'
+import { apiErrorMessage } from '@/utils/apiError'
+import DutyNotice from '@/components/DutyNotice.vue'
 
 useHead({
   title: 'Shipping | shibaco',
@@ -117,13 +139,14 @@ useHead({
 
 const shippingList = ref([])
 const loadingShipping = ref(true)
-const tableOpen = ref(false)
+const loadError = ref(null)
+const tableOpen = ref(true)
 
 onMounted(async () => {
   try {
     shippingList.value = await fetchOverseasShippings()
-  } catch {
-    // keep empty on error
+  } catch (err) {
+    loadError.value = apiErrorMessage(err, 'Unable to load shipping rates. Please refresh and try again.')
   } finally {
     loadingShipping.value = false
   }
@@ -175,11 +198,24 @@ onMounted(async () => {
   color: #1a1a1a;
 }
 
-.section p {
+.section p,
+.section-lead {
   font-size: 0.92rem;
   color: #5a5a5a;
   line-height: 2;
   margin: 0;
+}
+
+.section-lead {
+  margin-bottom: 16px;
+}
+
+.section-notice {
+  margin-top: 16px;
+}
+
+.section code {
+  font-size: 0.84em;
 }
 
 .accordion-trigger {

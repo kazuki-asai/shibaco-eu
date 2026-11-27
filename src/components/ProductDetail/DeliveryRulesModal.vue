@@ -17,11 +17,7 @@
         ×
       </button>
       <h2 id="delivery-modal-title">Delivery timeframe</h2>
-      <p>
-        Because each piece is made to order, delivery usually takes
-        <strong>7–10 business days</strong>
-        after your order is confirmed.
-      </p>
+      <p>{{ deliveryCopy.summary }}</p>
       <button class="delivery-modal__button" type="button" @click="close">
         Close
       </button>
@@ -31,6 +27,7 @@
 
 <script setup>
 import { nextTick, onMounted, ref, watch } from 'vue'
+import { deliveryCopy } from '@/config/store'
 
 const props = defineProps({
   modelValue: {

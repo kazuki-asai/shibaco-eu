@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --test src/utils/*.test.js"
   },
   "dependencies": {
     "@unhead/vue": "^3.1.7",
@@ -14,6 +15,9 @@
     "bootstrap": "^5.3.8",
     "vue": "^3.5.25",
     "vue-router": "^4.6.4"
+  },
+  "overrides": {
+    "qs": "6.16.2"
   },
   "devDependencies": {
     "@prerenderer/renderer-puppeteer": "^1.2.4",

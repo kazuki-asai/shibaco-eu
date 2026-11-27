@@ -29,4 +29,4 @@ Vue 3 + Vite + Bootstrap/Sass + Docker (copied from Japan storefront; adapted fo
 
 ## Open / inferred
 - Exact EU domain and Stripe/live shop code may differ from Japan; `.env` may need a dedicated EU shop code
-- Product prices from API may still be numeric; UI displays EUR symbol for this storefront
+- Product prices from the API are numeric yen. The UI and Stripe checkout both use JPY until ShopWorks charges another currency

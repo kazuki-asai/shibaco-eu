@@ -84,13 +84,19 @@ export default {
     }
 
     onMounted(async () => {
+      try {
       const res = await axios.get('/api/product_categories', {
         params: { shop_code: import.meta.env.VITE_SHOP_CODE },
       })
-      categories.value = res.data.map(cat => ({
+      categories.value = (Array.isArray(res.data) ? res.data : []).map(cat => ({
         ...cat,
-        image: (cat.image || '').replace(/^http:\/\/(localhost|host\.docker\.internal):\d+/, ''),
+        image: (cat.image || '').replace(/^https?:\/\/(?:localhost|host\.docker\.internal|127\.0\.0\.1)(?::\d+)?/i, ''),
       }))
+      } catch (err) {
+        categories.value = []
+        console.error(err)
+        return
+      }
 
       await nextTick()
       updateScrollState()

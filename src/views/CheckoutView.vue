@@ -12,10 +12,8 @@
         <CheckoutForm
           :form="form"
           :submitting="submitting"
-          :errorMessage="errorMessage"
-          :prefecture-options="prefectureOptions"
-          :prefectures-loading="prefecturesLoading"
-          :prefectures-load-error="prefecturesLoadError"
+          :error-message="errorMessage"
+          :country-options="countryOptions"
           :submit-blocked-message="submitBlockedMessage"
           @submit="submitOrder"
         />
@@ -23,10 +21,9 @@
           :cart="cart"
           :subtotal="subtotal"
           :grand-total="grandTotal"
-          :needs-separate-shipping="needsSeparateShipping"
-          :shipping-amount="shippingFee"
-          :shipping-loading="shippingLoading"
-          :shipping-error="shippingFetchError"
+          :shipping-status="shippingStatus"
+          :shipping-amount="shippingAmount"
+          :shipping-error="shippingError"
         />
       </div>
     </div>
@@ -34,20 +31,16 @@
 </template>
 
 <script>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import axios from 'axios'
-import { fetchOverseasShippings } from '@/api/overseasShipping'
+import { shippingCountries } from '@/config/shippingCountries'
+import { OVERSEAS_CHECKOUT_ENABLED } from '@/config/store'
 import { useCart } from '@/composables/useCart'
+import { useCountryShipping } from '@/composables/useCountryShipping'
 import CheckoutForm from '@/components/checkout/CheckoutForm.vue'
 import OrderSummary from '@/components/checkout/OrderSummary.vue'
-
-function resolvePrefectureLabel(selected, options) {
-  if (selected === '' || selected == null) return ''
-  const opt = options.find(
-    (o) => o.value === selected || String(o.value) === String(selected),
-  )
-  return opt?.label ?? String(selected)
-}
+import { apiErrorMessage } from '@/utils/apiError'
+import { buildCheckoutCustomer } from '@/utils/checkoutCustomer'
 
 export default {
   components: { CheckoutForm, OrderSummary },
@@ -55,141 +48,95 @@ export default {
     const { cart } = useCart()
     const submitting = ref(false)
     const errorMessage = ref(null)
-    const shippingFee = ref(null)
-    const shippingLoading = ref(false)
-    const shippingFetchError = ref(null)
-    const overseasShippings = ref([])
-    const prefecturesLoading = ref(false)
-    const prefecturesLoadError = ref(null)
-
-    const prefectureOptions = computed(() =>
-      overseasShippings.value.map((item) => ({
-        value: item.countryName,
-        label: item.countryName,
-      })),
-    )
-
-    onMounted(async () => {
-      prefecturesLoading.value = true
-      prefecturesLoadError.value = null
-      try {
-        overseasShippings.value = await fetchOverseasShippings()
-        if (!overseasShippings.value.length) {
-          prefecturesLoadError.value = 'Could not load the country list.'
-        }
-      } catch (e) {
-        prefecturesLoadError.value =
-          'Could not load the country list. Please refresh the page or try again later.'
-        overseasShippings.value = []
-        console.error(e)
-      } finally {
-        prefecturesLoading.value = false
-      }
-    })
+    const countryOptions = shippingCountries()
+    const { status: shippingStatus, amount: shippingAmount, error: shippingError, load: loadShipping } =
+      useCountryShipping()
 
     const form = ref({
       lastName: '',
       firstName: '',
-      lastNameKana: '',
-      firstNameKana: '',
       email: '',
       phone: '',
       zip: '',
-      prefecture: '',
+      city: '',
+      countryCode: '',
       address1: '',
       address2: '',
+      dutiesAccepted: false,
     })
 
     const subtotal = computed(() =>
-      cart.value.reduce((sum, item) => sum + item.price * item.quantity, 0)
+      cart.value.reduce((sum, item) => sum + item.price * item.quantity, 0),
     )
 
-    const needsSeparateShipping = computed(() =>
-      cart.value.some(
-        (item) => String(item.shipping_kind ?? '').trim() === 'separate',
-      ),
+    const selectedCountry = computed(() =>
+      countryOptions.find((country) => country.code === form.value.countryCode) || null,
     )
 
     const grandTotal = computed(() => {
-      if (!needsSeparateShipping.value) return subtotal.value
-      return subtotal.value + (shippingFee.value ?? 0)
+      if (shippingStatus.value !== 'quoted' || shippingAmount.value == null) return null
+      return subtotal.value + shippingAmount.value
     })
 
     const submitBlockedMessage = computed(() => {
-      if (!needsSeparateShipping.value) return null
-      const pref = form.value.prefecture
-      if (pref === '' || pref == null) return null
-      if (shippingLoading.value) {
-        return 'Calculating shipping. Please wait a moment.'
+      if (!OVERSEAS_CHECKOUT_ENABLED) return 'We are not taking online orders yet.'
+      if (!form.value.countryCode) return 'Select a country to calculate shipping.'
+      if (shippingStatus.value === 'loading') return 'Calculating shipping. Please wait a moment.'
+      if (shippingStatus.value === 'unavailable') {
+        return shippingError.value || 'We cannot ship to this country yet.'
       }
-      if (shippingFetchError.value) return shippingFetchError.value
-      if (shippingFee.value === null) {
-        return 'Unable to confirm shipping. Please reselect your country / region.'
+      if (shippingStatus.value === 'error') return shippingError.value
+      if (shippingStatus.value !== 'quoted' || shippingAmount.value == null) {
+        return 'Shipping is not confirmed yet.'
+      }
+      if (!form.value.dutiesAccepted) {
+        return 'Please confirm that import VAT, duty, and carrier fees are paid on delivery.'
       }
       return null
     })
 
     watch(
-      () => [needsSeparateShipping.value, form.value.prefecture, overseasShippings.value],
-      ([needs, country]) => {
-        shippingFetchError.value = null
-        shippingLoading.value = false
-        if (!needs) {
-          shippingFee.value = null
-          return
-        }
-
-        if (country === '' || country == null) {
-          shippingFee.value = null
-          return
-        }
-
-        const match = overseasShippings.value.find((item) => item.countryName === country)
-        if (!match || match.shippingFee == null) {
-          shippingFee.value = null
-          shippingFetchError.value = 'Could not retrieve shipping cost.'
-          return
-        }
-
-        shippingFee.value = match.shippingFee
+      () => form.value.countryCode,
+      (code) => {
+        errorMessage.value = null
+        loadShipping(code)
       },
-      { immediate: true },
     )
 
     const submitOrder = async () => {
-      if (submitBlockedMessage.value) return
+      if (!OVERSEAS_CHECKOUT_ENABLED) return
+      if (submitBlockedMessage.value || !selectedCountry.value) return
+      if (shippingAmount.value == null) return
 
       submitting.value = true
       errorMessage.value = null
       try {
         const origin = window.location.origin
-        const shop_code = import.meta.env.VITE_SHOP_CODE
-        const customer = {
-          ...form.value,
-          prefecture: resolvePrefectureLabel(
-            form.value.prefecture,
-            prefectureOptions.value,
-          ),
-        }
+        const customer = buildCheckoutCustomer(form.value, selectedCountry.value)
         const { data } = await axios.post('/api/checkouts', {
-          shop_code,
+          shop_code: import.meta.env.VITE_SHOP_CODE,
           customer,
+          country_code: selectedCountry.value.code,
           items: cart.value,
           total: grandTotal.value,
-          shipping_fee: needsSeparateShipping.value ? shippingFee.value : undefined,
+          shipping_fee: shippingAmount.value,
+          duties_accepted: true,
           success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${origin}/checkout`,
         })
 
-        const checkout_url = data.checkout_url || data.url
-        if (checkout_url) {
-          window.location.href = checkout_url
+        const checkoutUrl = data.checkout_url || data.url
+        if (checkoutUrl) {
+          window.location.href = checkoutUrl
         } else {
           errorMessage.value = 'Failed to get the payment URL.'
         }
-      } catch (e) {
-        errorMessage.value = 'Something went wrong while placing your order. Please try again.'
-        console.error(e)
+      } catch (err) {
+        errorMessage.value = apiErrorMessage(
+          err,
+          'Something went wrong while placing your order. Please try again.',
+        )
+        console.error(err)
       } finally {
         submitting.value = false
       }
@@ -199,17 +146,14 @@ export default {
       cart,
       subtotal,
       grandTotal,
-      needsSeparateShipping,
-      shippingFee,
-      shippingLoading,
-      shippingFetchError,
+      shippingStatus,
+      shippingAmount,
+      shippingError,
       submitBlockedMessage,
       form,
       submitting,
       errorMessage,
-      prefectureOptions,
-      prefecturesLoading,
-      prefecturesLoadError,
+      countryOptions,
       submitOrder,
     }
   },

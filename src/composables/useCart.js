@@ -17,28 +17,36 @@ const save = () => {
 }
 
 export const useCart = () => {
-  const addToCart = ({ product, colorId, sizeId }) => {
+  const addToCart = ({ product, colorId, sizeId, printColorId }) => {
     const hasColors = product.colors?.length > 0
     const hasSizes = product.sizes?.length > 0
+    const hasPrintColors = product.print_colors?.length > 0
 
     if (hasColors && !colorId) {
       throw new Error('Please select a colour')
+    }
+    if (hasPrintColors && !printColorId) {
+      throw new Error('Please select a print colour')
     }
     if (hasSizes && !sizeId) {
       throw new Error('Please select a size')
     }
 
+    const normalizedPrintColorId = printColorId ?? null
     const existing = cart.value.find(
       (item) =>
         item.productId === product.id &&
         item.colorId === (colorId ?? null) &&
-        item.sizeId === (sizeId ?? null),
+        item.sizeId === (sizeId ?? null) &&
+        (item.printColorId ?? null) === normalizedPrintColorId,
     )
     if (existing) {
       existing.quantity += 1
     } else {
       const colorName = product.colors?.find((c) => c.id === colorId)?.name ?? null
       const sizeName = product.sizes?.find((s) => s.id === sizeId)?.name ?? null
+      const printColorName =
+        product.print_colors?.find((c) => c.id === printColorId)?.name ?? null
       const rawKind = product.shipping_kind ?? product.shippingKind
       const shipping_kind =
         rawKind != null && rawKind !== '' ? String(rawKind).trim() : ''
@@ -49,8 +57,8 @@ export const useCart = () => {
         image: product.images?.[0] ?? null,
         colorId: colorId ?? null,
         colorName,
-        printColorId: null,
-        printColorName: null,
+        printColorId: normalizedPrintColorId,
+        printColorName,
         sizeId: sizeId ?? null,
         sizeName,
         quantity: 1,

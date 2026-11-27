@@ -1,5 +1,6 @@
 import { nextTick } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import { trackPageView } from '@/consent/googleConsent'
 import HomeView from '../views/HomeView.vue'
 import ProductsView from '../views/ProductsView.vue'
 import ProductDetail from '../views/ProductDetail.vue'
@@ -47,12 +48,7 @@ const router = createRouter({
 
 router.afterEach((to) => {
   nextTick(() => {
-    if (typeof window.gtag !== 'function') return
-    window.gtag('event', 'page_view', {
-      page_path: to.fullPath,
-      page_location: window.location.href,
-      page_title: document.title,
-    })
+    trackPageView(to)
   })
 })
 

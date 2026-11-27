@@ -12,45 +12,52 @@
           <p class="summary-item-name">{{ item.name }}</p>
           <p class="summary-item-meta">
             <span v-if="item.colorName">{{ item.colorName }}</span>
+            <span v-if="item.printColorName"> / Print: {{ item.printColorName }}</span>
             <span v-if="item.sizeName"> / {{ item.sizeName }}</span>
           </p>
         </div>
-        <p class="summary-item-price">¥{{ (item.price * item.quantity).toLocaleString() }} JPY</p>
+        <p class="summary-item-price">{{ $money(item.price * item.quantity) }}</p>
       </div>
     </div>
     <div class="summary-totals">
       <div class="summary-row">
         <span>Subtotal</span>
-        <span>¥{{ subtotal.toLocaleString() }} JPY</span>
+        <span>{{ $money(subtotal) }}</span>
       </div>
       <div class="summary-row shipping-row">
         <span>Shipping</span>
         <span class="shipping-cell">
-          <template v-if="!needsSeparateShipping">Free</template>
-          <template v-else-if="shippingLoading">Calculating…</template>
-          <template v-else-if="shippingError"><span class="shipping-error">{{ shippingError }}</span></template>
-          <template v-else-if="shippingAmount !== null">¥{{ shippingAmount.toLocaleString() }} JPY</template>
-          <template v-else>—</template>
+          <template v-if="shippingStatus === 'loading'">Calculating…</template>
+          <template v-else-if="shippingStatus === 'quoted' && shippingAmount === 0">Free</template>
+          <template v-else-if="shippingStatus === 'quoted'">{{ $money(shippingAmount) }}</template>
+          <template v-else-if="shippingStatus === 'unavailable'">Not available</template>
+          <template v-else-if="shippingStatus === 'error'"><span class="shipping-error">{{ shippingError }}</span></template>
+          <template v-else>Select a country</template>
         </span>
       </div>
       <div class="summary-row total">
         <span>Total</span>
-        <span>¥{{ grandTotal.toLocaleString() }} JPY</span>
+        <span>{{ grandTotal == null ? '—' : $money(grandTotal) }}</span>
       </div>
+      <p class="shipping-note">{{ currencyNotice }} Shipping is added only when the shop has a rate for your country.</p>
     </div>
   </div>
 </template>
 
 <script>
+import { currencyNotice } from '@/config/store'
+
 export default {
   props: {
     cart: { type: Array, required: true },
     subtotal: { type: Number, required: true },
-    grandTotal: { type: Number, required: true },
-    needsSeparateShipping: { type: Boolean, default: false },
+    grandTotal: { type: Number, default: null },
+    shippingStatus: { type: String, default: 'idle' },
     shippingAmount: { type: Number, default: null },
-    shippingLoading: { type: Boolean, default: false },
     shippingError: { type: String, default: null },
+  },
+  setup() {
+    return { currencyNotice }
   },
   methods: {
     onImageError(e) {
@@ -178,5 +185,12 @@ export default {
   color: #c00;
   font-size: 0.78rem;
   font-weight: 400;
+}
+
+.shipping-note {
+  margin: 8px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #777;
 }
 </style>
