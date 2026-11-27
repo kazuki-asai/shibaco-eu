@@ -12,6 +12,7 @@
           <p class="summary-item-name">{{ item.name }}</p>
           <p class="summary-item-meta">
             <span v-if="item.colorName">{{ item.colorName }}</span>
+            <span v-if="item.printColorName"> / Print: {{ item.printColorName }}</span>
             <span v-if="item.sizeName"> / {{ item.sizeName }}</span>
           </p>
         </div>

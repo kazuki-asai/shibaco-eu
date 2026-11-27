@@ -7,13 +7,34 @@
 
     <div v-if="product.colors && product.colors.length" class="option-group">
       <p class="option-label">Colour: <span class="option-selected">{{ selectedColor ? selectedColor.name : '' }}</span></p>
-      <div class="radio-group">
+      <div class="radio-group" role="radiogroup" aria-label="Colour">
         <label v-for="color in product.colors" :key="color.id" class="color-radio">
-          <input type="radio" :value="color.id" v-model="selectedColorId" hidden />
+          <input type="radio" :value="color.id" v-model="selectedColorId" :aria-label="color.name" />
           <span
             class="color-swatch"
             :style="{ background: color.hex_code }"
             :class="{ selected: selectedColorId === color.id, 'light-color': isLight(color.hex_code) }"
+            :title="color.name"
+          ></span>
+        </label>
+      </div>
+    </div>
+
+    <div v-if="product.print_colors && product.print_colors.length" class="option-group">
+      <p class="option-label">
+        Print colour: <span class="option-selected">{{ selectedPrintColor ? selectedPrintColor.name : '' }}</span>
+        <span class="tooltip-wrapper">
+          <span class="tooltip-icon" tabindex="0" aria-describedby="print-colour-tip">?</span>
+          <span id="print-colour-tip" class="tooltip-text" role="tooltip">The ink colour used for the print. This is separate from the garment colour.</span>
+        </span>
+      </p>
+      <div class="radio-group" role="radiogroup" aria-label="Print colour">
+        <label v-for="color in product.print_colors" :key="color.id" class="color-radio">
+          <input type="radio" :value="color.id" v-model="selectedPrintColorId" :aria-label="color.name" />
+          <span
+            class="color-swatch"
+            :style="{ background: color.hex_code }"
+            :class="{ selected: selectedPrintColorId === color.id, 'light-color': isLight(color.hex_code) }"
             :title="color.name"
           ></span>
         </label>
@@ -55,7 +76,7 @@
 </template>
 
 <script>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import DeliveryRulesModal from './DeliveryRulesModal.vue'
 import DutyNotice from '@/components/DutyNotice.vue'
 
@@ -71,13 +92,25 @@ export default {
   setup(props, { emit }) {
     const selectedColorId = ref(null)
     const selectedSizeId = ref(null)
+    const selectedPrintColorId = ref(null)
     const isDeliveryModalOpen = ref(false)
 
     const selectedColor = computed(() =>
       props.product?.colors?.find(c => c.id === selectedColorId.value) ?? null
     )
 
+    const selectedPrintColor = computed(() =>
+      props.product?.print_colors?.find(c => c.id === selectedPrintColorId.value) ?? null
+    )
+
+    watch(() => props.product?.id, () => {
+      selectedColorId.value = null
+      selectedSizeId.value = null
+      selectedPrintColorId.value = null
+    })
+
     const isLight = (hex) => {
+      if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return false
       const r = parseInt(hex.slice(1, 3), 16)
       const g = parseInt(hex.slice(3, 5), 16)
       const b = parseInt(hex.slice(5, 7), 16)
@@ -93,10 +126,15 @@ export default {
         alert('Please select a size')
         return
       }
+      if (props.product.print_colors?.length && !selectedPrintColorId.value) {
+        alert('Please select a print colour')
+        return
+      }
       emit('add-to-cart', {
         product: props.product,
         colorId: selectedColorId.value,
         sizeId: selectedSizeId.value,
+        printColorId: selectedPrintColorId.value,
       })
     }
 
@@ -104,6 +142,8 @@ export default {
       selectedColorId,
       selectedSizeId,
       selectedColor,
+      selectedPrintColorId,
+      selectedPrintColor,
       isDeliveryModalOpen,
       isLight,
       addToCart,
@@ -182,6 +222,17 @@ export default {
   gap: 8px;
 }
 
+.color-radio {
+  position: relative;
+}
+
+.color-radio input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
 .color-swatch {
   display: block;
   width: 28px;
@@ -232,6 +283,55 @@ export default {
 
 .add-to-cart-btn:hover {
   background: #444;
+}
+
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #999;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: default;
+  line-height: 1;
+}
+
+.tooltip-text {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  padding: 6px 10px;
+  border-radius: 4px;
+  width: max-content;
+  max-width: 220px;
+  white-space: normal;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.tooltip-wrapper:hover .tooltip-text,
+.tooltip-wrapper:focus-within .tooltip-text {
+  visibility: visible;
+  opacity: 1;
 }
 
 </style>

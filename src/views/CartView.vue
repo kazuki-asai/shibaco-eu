@@ -15,6 +15,7 @@
               <p class="item-name">{{ item.name }}</p>
               <p class="item-meta">
                 <span v-if="item.colorName">Colour: {{ item.colorName }}</span>
+                <span v-if="item.printColorName"> / Print: {{ item.printColorName }}</span>
                 <span v-if="item.sizeName"> / Size: {{ item.sizeName }}</span>
               </p>
               <p class="item-price">{{ $money(item.price) }}</p>
