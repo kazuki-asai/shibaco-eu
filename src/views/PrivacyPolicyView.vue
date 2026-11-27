@@ -7,10 +7,7 @@
 
     <div class="container">
       <p class="intro">
-        This policy explains how the European shibaco store handles personal data. It is a working template. Fields marked “Seller to complete” must be filled in before launch. It is not a substitute for advice from a lawyer.
-      </p>
-      <p class="owner-gap">
-        Seller to complete before launch: a customer email address, and the company register and VAT or invoice numbers if you have them. The controller’s name, address, and phone are loaded from the shop record when that record is available.
+        This policy explains how the European shibaco store handles personal data.
       </p>
 
       <section class="section" v-for="section in sections" :key="section.title">
@@ -31,6 +28,7 @@
 
 <script setup>
 import { useHead } from '@unhead/vue'
+import { GOOGLE_ADS_ID, GOOGLE_ANALYTICS_ID } from '@/config/store'
 
 useHead({
   title: 'Privacy policy | shibaco',
@@ -48,8 +46,7 @@ const sections = [
   {
     title: '1. Who is responsible',
     body: `
-      <p>The controller is the seller named on the <a href="/legal">legal notice</a>. That page shows the name, representative, address, and phone number stored for this shop. The shop record does not include a privacy email.</p>
-      <p><strong>Seller to complete:</strong> a dedicated privacy contact email. Until it is published, use the contact form and write “Privacy” in the message.</p>
+      <p>The controller is the seller named on the <a href="/legal">legal notice</a>. For privacy questions, use the contact form and write “Privacy” in the message.</p>
       <p>This store is operated from Japan and sells to people in Europe.</p>
     `,
   },
@@ -72,7 +69,7 @@ const sections = [
     body: `
       <ul>
         <li><strong>Contract</strong> (GDPR Art. 6(1)(b)): taking your order, charging the yen amount, shipping, and sending order emails.</li>
-        <li><strong>Legal obligation</strong> (Art. 6(1)(c)): tax and accounting records the seller is required to keep. The retention period is for the seller to confirm. Japanese export documents are often kept for 7 years; do not treat that as legal advice.</li>
+        <li><strong>Legal obligation</strong> (Art. 6(1)(c)): keeping the tax and accounting records the law requires.</li>
         <li><strong>Legitimate interests</strong> (Art. 6(1)(f)): securing the site, preventing fraud, and answering questions. You can object where the law allows.</li>
         <li><strong>Consent</strong> (Art. 6(1)(a)): Google Analytics and Google Ads. We do not load those tags until you accept. You can reject them, or change your mind, with the cookie settings link in the footer.</li>
       </ul>
@@ -85,8 +82,8 @@ const sections = [
       <p>We do not sell personal data. Recipients are limited to:</p>
       <ul>
         <li><strong>Stripe</strong> — card payment and the checkout page</li>
-        <li><strong>The carrier</strong> — name, address, and contact details needed for delivery. <strong>Seller to complete:</strong> the carrier’s name.</li>
-        <li><strong>Google</strong> — Analytics (measurement ID G-8108T1M9BS) and Ads (AW-18390381994), only after you accept</li>
+        <li><strong>The carrier</strong> — name, address, and contact details needed for delivery.</li>
+        <li><strong>Google</strong> — Analytics (${GOOGLE_ANALYTICS_ID}) and Ads (${GOOGLE_ADS_ID}), only after you accept</li>
         <li><strong>Render</strong> — hosts this website</li>
         <li><strong>The shop platform</strong> — stores orders and enquiries</li>
         <li>Authorities, when the law requires it</li>
@@ -102,7 +99,7 @@ const sections = [
   {
     title: '6. How long we keep it',
     body: `
-      <p>Order and accounting records are kept for as long as tax law requires. <strong>Seller to complete:</strong> the exact periods. Enquiries are kept long enough to resolve them and for a short time afterwards. The cookie choice is stored in local storage until you change it. Analytics cookies, if you accept them, follow Google’s expiry.</p>
+      <p>Order and accounting records are kept for as long as tax law requires. Enquiries are kept long enough to resolve them and for a short time afterwards. The cookie choice is stored in local storage until you change it. Analytics cookies, if you accept them, follow Google’s expiry.</p>
     `,
   },
   {
@@ -179,17 +176,7 @@ const sections = [
   font-size: 0.92rem;
   color: #5a5a5a;
   line-height: 2;
-  margin: 0 0 16px;
-}
-
-.owner-gap {
-  margin: 0 0 40px;
-  padding: 14px 16px;
-  background: #f7f1e4;
-  border-left: 3px solid #b89a6a;
-  color: #3a3a3a;
-  font-size: 0.86rem;
-  line-height: 1.6;
+  margin: 0 0 48px;
 }
 
 .section {

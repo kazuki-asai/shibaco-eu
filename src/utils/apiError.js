@@ -24,6 +24,7 @@ export function apiErrorMessage(error, fallback) {
   for (const [pattern, message] of KNOWN_MESSAGES) {
     if (pattern.test(raw)) return message
   }
-  if (/[ぁ-んァ-ン一-龯]/.test(raw)) return fallback
+  // ー is Script=Common, so it is listed beside the three Japanese scripts.
+  if (/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー]/u.test(raw)) return fallback
   return raw
 }

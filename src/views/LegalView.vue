@@ -6,10 +6,7 @@
     </div>
 
     <div class="container">
-      <p v-if="shopError" class="owner-gap">{{ shopError }}</p>
-      <p class="owner-gap">
-        Rows marked “Seller to complete” are not in the shop record. Do not open the store to customers until those details are filled in. This page does not invent an address, email, or registration number.
-      </p>
+      <p v-if="shopError" class="load-error">{{ shopError }}</p>
 
       <table class="info-table">
         <tbody>
@@ -56,8 +53,6 @@ import axios from 'axios'
 import { currencyNotice, deliveryCopy, dutyNotice } from '@/config/store'
 import { apiErrorMessage } from '@/utils/apiError'
 
-const SELLER_GAP = 'Seller to complete before launch'
-
 useHead({
   title: 'Legal notice | shibaco',
   meta: [
@@ -72,9 +67,9 @@ useHead({
 const shop = ref(null)
 const shopError = ref(null)
 
-function shown(value) {
+function filled(value) {
   const text = value == null ? '' : String(value).trim()
-  return text || SELLER_GAP
+  return text || null
 }
 
 onMounted(async () => {
@@ -82,26 +77,24 @@ onMounted(async () => {
     const { data } = await axios.get('/api/shop')
     shop.value = data?.shop ?? data
   } catch (err) {
-    shopError.value = apiErrorMessage(err, 'Seller details could not be loaded. Please refresh and try again.')
+    shopError.value = apiErrorMessage(err, 'We could not load these details. Please refresh and try again.')
   }
 })
 
 const items = computed(() => [
-  { label: 'Store', value: shown(shop.value?.name) },
-  { label: 'Seller (legal name)', value: shown(shop.value?.business_name) },
-  { label: 'Represented by', value: shown(shop.value?.manager_name) },
-  { label: 'Address', value: shown(shop.value?.address) },
-  { label: 'Phone', value: shown(shop.value?.phone_number) },
-  { label: 'Email', value: shown(shop.value?.email) },
-  { label: 'Company register', value: SELLER_GAP },
-  { label: 'VAT or invoice registration', value: SELLER_GAP },
-  { label: 'Prices', value: 'Shown on each product in Japanese yen (JPY), the currency Stripe charges' },
-  { label: 'Shipping and import charges', value: 'Shipping is the country rate from the shop. Import VAT, customs duty, and carrier fees are paid by you on delivery (DAP).', link: { to: '/shipping', label: 'View shipping information →' } },
-  { label: 'Payment methods', value: 'Payment is taken on Stripe Checkout in Japanese yen. Stripe may also show wallet buttons (such as Apple Pay or Link) and a converted currency if those are turned on in the Stripe account. This website shows Visa and Mastercard marks only.' },
+  { label: 'Store', value: filled(shop.value?.name) },
+  { label: 'Seller (legal name)', value: filled(shop.value?.business_name) },
+  { label: 'Represented by', value: filled(shop.value?.manager_name) },
+  { label: 'Address', value: filled(shop.value?.address) },
+  { label: 'Phone', value: filled(shop.value?.phone_number) },
+  { label: 'Email', value: filled(shop.value?.email) },
+  { label: 'Prices', value: 'Shown on each product in Japanese yen (JPY). Checkout charges Japanese yen.' },
+  { label: 'Shipping and import charges', value: 'Shipping is the rate for your country. Import VAT, customs duty, and carrier fees are paid by you on delivery (DAP).', link: { to: '/shipping', label: 'View shipping information →' } },
+  { label: 'Payment methods', value: 'Payment is taken on Stripe Checkout in Japanese yen. The payment page can also show the card brands, wallets, or a converted currency that the payment account has enabled.' },
   { label: 'Payment timing', value: 'Payment is charged when you place your order' },
   { label: 'Delivery timing', value: deliveryCopy.summary },
   { label: 'Withdrawal and returns', value: 'EU and EEA consumers can withdraw within 14 days of receiving the goods. Faulty goods are handled separately.', link: { to: '/returns', label: 'View returns →' } },
-])
+].filter((row) => row.value))
 </script>
 
 <style scoped>
@@ -139,13 +132,10 @@ const items = computed(() => [
   padding: 64px 24px 0;
 }
 
-.owner-gap {
+.load-error {
   margin: 0 0 20px;
-  padding: 14px 16px;
-  background: #f7f1e4;
-  border-left: 3px solid #b89a6a;
-  color: #3a3a3a;
-  font-size: 0.86rem;
+  color: #8a3b3b;
+  font-size: 0.88rem;
   line-height: 1.6;
 }
 

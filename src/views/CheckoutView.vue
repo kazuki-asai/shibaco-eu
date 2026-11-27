@@ -34,6 +34,7 @@
 import { computed, ref, watch } from 'vue'
 import axios from 'axios'
 import { shippingCountries } from '@/config/shippingCountries'
+import { OVERSEAS_CHECKOUT_ENABLED } from '@/config/store'
 import { useCart } from '@/composables/useCart'
 import { useCountryShipping } from '@/composables/useCountryShipping'
 import CheckoutForm from '@/components/checkout/CheckoutForm.vue'
@@ -78,6 +79,7 @@ export default {
     })
 
     const submitBlockedMessage = computed(() => {
+      if (!OVERSEAS_CHECKOUT_ENABLED) return 'We are not taking online orders yet.'
       if (!form.value.countryCode) return 'Select a country to calculate shipping.'
       if (shippingStatus.value === 'loading') return 'Calculating shipping. Please wait a moment.'
       if (shippingStatus.value === 'unavailable') {
@@ -102,6 +104,7 @@ export default {
     )
 
     const submitOrder = async () => {
+      if (!OVERSEAS_CHECKOUT_ENABLED) return
       if (submitBlockedMessage.value || !selectedCountry.value) return
       if (shippingAmount.value == null) return
 

@@ -1,8 +1,10 @@
 name: CI
 
 on:
-  push:
   pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
@@ -16,5 +18,3 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run build
-        env:
-          PRERENDER: 'true'

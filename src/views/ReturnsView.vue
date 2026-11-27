@@ -18,8 +18,7 @@
           The refund uses the original payment method.
         </p>
         <div class="notice">
-          <p><b>Seller to confirm before relying on a narrower rule:</b> return shipping for a change-of-mind withdrawal is paid by you, unless the item is faulty or we failed to tell you that you pay it.</p>
-          <p>Goods made to your specifications, or clearly personalised, can be exempt from withdrawal. Choosing a standard colour and size is often not enough for that exemption. Do not refuse a change-of-mind return on that basis until a lawyer has confirmed it for these products.</p>
+          <p>You pay the cost of sending the goods back when you withdraw, unless the item is faulty or we failed to tell you that you pay that cost.</p>
         </div>
       </section>
 
@@ -76,7 +75,7 @@
           <li>You may examine the goods as you would in a shop. Wear or washing beyond that can reduce a withdrawal refund by the loss in value.</li>
           <li>If a replacement is unavailable, we will offer a refund.</li>
           <li>Refunds of what this shop charged are issued to the original payment method. Import VAT and duty you paid to the carrier are between you and the carrier or customs, unless we charged them (we do not, under DAP).</li>
-          <li>If you refuse delivery, return shipping and carrier fees may be deducted. The exact deduction is still for the seller to set. Contact us before refusing a parcel.</li>
+          <li>If you refuse delivery, return shipping and carrier fees may be deducted from a refund.</li>
         </ul>
       </section>
 

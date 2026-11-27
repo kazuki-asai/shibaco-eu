@@ -57,7 +57,7 @@
       <h2>Import charges</h2>
       <DutyNotice />
       <p class="field-hint">
-        From 2026, low-value parcels can also attract an EU customs duty and a Union handling fee, plus any fee the carrier charges for advancing those amounts. The exact amount is set by customs and the carrier, not by this shop.
+        Import VAT, customs duty, and fees from the carrier may be due when the parcel arrives. They are not part of the price or the shipping charge. The amount is set by customs and the carrier, not by this shop.
         Refusing the parcel can mean you still owe return shipping and those fees.
         <RouterLink to="/shipping">Shipping</RouterLink>
         ·

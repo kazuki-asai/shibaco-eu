@@ -37,6 +37,7 @@ Copy `.env.example` to `.env.local`.
 | `VITE_API_BASE_URL` | Axios base URL. Set on Render to the ShopWorks origin (for example `https://shopworks.onrender.com`). Leave unset locally so requests stay on `/api` and the proxy is used. |
 | `VITE_GA_MEASUREMENT_ID` | Optional. Defaults to `G-8108T1M9BS`. Loaded only after cookie consent. |
 | `VITE_GOOGLE_ADS_ID` | Optional. Defaults to `AW-18390381994`. Loaded only after cookie consent. |
+| `VITE_OVERSEAS_CHECKOUT_ENABLED` | Set to `true` only when ShopWorks charges the country shipping rate. Unset or any other value keeps checkout closed, even if a rate exists. |
 
 ## Routes
 
@@ -62,7 +63,7 @@ Prices and Stripe charges are **Japanese yen (JPY)**. ShopWorks creates Checkout
 
 ## Shipping
 
-Checkout quotes `GET /api/overseas_shipping?country_code=` and lists `GET /api/overseas_shippings`. A missing amount is “not available”, never “Free”. Free is shown only when the amount is 0.
+Checkout quotes `GET /api/overseas_shipping?country_code=` and lists `GET /api/overseas_shippings`. A missing amount is “not available”, never “Free”. Free is shown only when the amount is 0. Placing an order also requires `VITE_OVERSEAS_CHECKOUT_ENABLED=true`.
 
 ShopWorks checkout still prices shipping from Japanese prefectures and rejects a `shipping_fee` that does not match that calculation. Until that changes, a real overseas rate cannot be charged. See the launch notes in the pull request.
 

@@ -154,7 +154,7 @@ onMounted(async () => {
     inquiryCategories.value = Array.isArray(data) ? data : []
     if (!inquiryCategories.value.length) {
       categoriesError.value =
-        'Enquiry types are not set up yet, so this form cannot be sent. Please try again later.'
+        'This form is unavailable right now. Please try again later.'
     }
   } catch (err) {
     categoriesError.value = apiErrorMessage(

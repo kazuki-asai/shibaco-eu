@@ -22,6 +22,12 @@ export const SITE_NAME = 'shibaco'
 export const GOOGLE_ANALYTICS_ID = envValue('VITE_GA_MEASUREMENT_ID') || 'G-8108T1M9BS'
 export const GOOGLE_ADS_ID = envValue('VITE_GOOGLE_ADS_ID') || 'AW-18390381994'
 
+/**
+ * Overseas checkout stays closed unless this is exactly "true".
+ * A shipping amount from the API, including 0, does not open it.
+ */
+export const OVERSEAS_CHECKOUT_ENABLED = envValue('VITE_OVERSEAS_CHECKOUT_ENABLED') === 'true'
+
 /** One delivery timeframe, used on the product, shipping, FAQ, and legal pages. */
 export const deliveryCopy = {
   production: '5–10 business days',

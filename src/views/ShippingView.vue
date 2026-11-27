@@ -54,7 +54,7 @@
                   <td colspan="2" class="table-placeholder">{{ loadError }}</td>
                 </tr>
                 <tr v-else>
-                  <td colspan="2" class="table-placeholder">No shipping rates have been published yet. Checkout stays closed until a country rate is set.</td>
+                  <td colspan="2" class="table-placeholder">Shipping rates are not listed yet. We cannot take an order to a country that is not listed.</td>
                 </tr>
               </tbody>
             </table>
@@ -82,8 +82,7 @@
       <section class="section">
         <h2>Courier</h2>
         <p>
-          Orders leave Japan with the carrier the seller chooses.
-          The carrier name is not set on this page yet — the seller still has to name it (for example Japan Post EMS or another international service) before launch.
+          Orders leave Japan with an international postal or courier service.
           Once your package is on its way, we email you a tracking number.
         </p>
       </section>
@@ -108,7 +107,6 @@
         </p>
         <div class="notice">
           <p>This store ships DAP. If you refuse the parcel, or it cannot be delivered and is returned, return shipping and any carrier or customs fees can be deducted from a refund.</p>
-          <p>The seller still needs to confirm the exact deduction and whether an undeliverable parcel is returned or abandoned. Until that rule is written down, contact us before refusing a delivery.</p>
         </div>
       </section>
 

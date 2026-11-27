@@ -49,8 +49,11 @@ function onOpenSettings() {
 }
 
 onMounted(() => {
-  open.value = readStoredConsent() == null
   window.addEventListener('shibaco:cookie-settings', onOpenSettings)
+  // Prerender runs in Puppeteer (navigator.webdriver). Leave the banner out of
+  // that HTML so a saved choice is not covered until this script runs.
+  if (navigator.webdriver) return
+  open.value = readStoredConsent() == null
 })
 
 onUnmounted(() => {
