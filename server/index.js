@@ -1,3 +1,7 @@
+// Optional local Stripe sketch. The Render site is a static Vite build.
+// Live checkout is ShopWorks POST /api/checkouts, which charges currency `jpy`
+// and recalculates shipping from Japanese prefectures. Do not point the
+// storefront at this file for an EU launch.
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'

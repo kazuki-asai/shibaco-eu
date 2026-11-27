@@ -55,10 +55,15 @@ export default {
     const categories = ref([])
 
     onMounted(async () => {
-      const res = await axios.get('/api/product_categories', {
-        params: { shop_code: import.meta.env.VITE_SHOP_CODE },
-      })
-      categories.value = res.data
+      try {
+        const res = await axios.get('/api/product_categories', {
+          params: { shop_code: import.meta.env.VITE_SHOP_CODE },
+        })
+        categories.value = Array.isArray(res.data) ? res.data : []
+      } catch (err) {
+        categories.value = []
+        console.error(err)
+      }
     })
 
     return {

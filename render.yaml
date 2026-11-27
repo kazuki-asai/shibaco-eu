@@ -1,0 +1,16 @@
+# Render static site. Production checkout is ShopWorks, not server/index.js.
+services:
+  - type: web
+    name: shibaco-eu
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+      - key: VITE_SHOP_CODE
+        sync: false
+      - key: VITE_GA_MEASUREMENT_ID
+        value: G-8108T1M9BS
+      - key: VITE_GOOGLE_ADS_ID
+        value: AW-18390381994

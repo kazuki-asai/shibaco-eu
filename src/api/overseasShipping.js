@@ -1,34 +1,24 @@
 import axios from 'axios'
-
-function parseAmount(value) {
-  if (value == null || value === '') return null
-  const n = Number(value)
-  if (!Number.isFinite(n) || n < 0) return null
-  return Math.round(n)
-}
+import { normalizeShippingList, quoteFromPayload } from '@/utils/shippingQuote'
 
 /**
  * GET /api/overseas_shippings
- * Returns { countryName, shippingFee } for each destination.
+ * Configured destinations only. An empty array means no rates are published.
  */
 export async function fetchOverseasShippings(signal) {
   const { data } = await axios.get('/api/overseas_shippings', { signal })
-  const list = Array.isArray(data)
-    ? data
-    : Array.isArray(data?.overseas_shippings)
-      ? data.overseas_shippings
-      : Array.isArray(data?.data)
-        ? data.data
-        : []
+  return normalizeShippingList(data)
+}
 
-  return list
-    .map((item) => {
-      const countryName = String(item?.country_name ?? item?.name ?? '').trim()
-      if (!countryName) return null
-      return {
-        countryName,
-        shippingFee: parseAmount(item?.amount ?? item?.shipping_fee ?? item?.fee),
-      }
-    })
-    .filter(Boolean)
+/**
+ * GET /api/overseas_shipping?country_code=
+ * Unconfigured countries return amount: null. That is not free shipping.
+ */
+export async function fetchOverseasShipping(countryCode, signal) {
+  const code = String(countryCode || '').trim().toUpperCase()
+  const { data } = await axios.get('/api/overseas_shipping', {
+    signal,
+    params: { country_code: code },
+  })
+  return quoteFromPayload({ ...data, country_code: data?.country_code || code })
 }

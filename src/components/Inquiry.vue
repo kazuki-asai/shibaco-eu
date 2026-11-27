@@ -86,21 +86,21 @@
           />
         </div>
 
-        <!--
         <div class="form-group checkbox-wrap">
           <label class="checkbox-label">
             <input v-model="form.privacy" type="checkbox" name="privacy" />
             <span>
-              <a href="#" class="inline-link" @click.prevent>privacy policy</a>
-              I agree <span class="required">*</span>
+              I have read the
+              <RouterLink to="/privacy-policy" class="inline-link">privacy policy</RouterLink>
+              and agree to my message being used to reply to this enquiry.
+              <span class="required">*</span>
             </span>
           </label>
         </div>
-        -->
 
         <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-        <button type="submit" class="btn-submit" :disabled="submitting">
+        <button type="submit" class="btn-submit" :disabled="submitting || !canSubmit">
           {{ submitting ? 'Sending…' : 'Send message' }}
         </button>
       </form>
@@ -109,9 +109,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useHead } from '@unhead/vue'
 import axios from 'axios'
+import { apiErrorMessage } from '@/utils/apiError'
 
 useHead({
   title: 'Contact | shibaco',
@@ -141,16 +142,25 @@ const form = reactive({
 const submitting = ref(false)
 const errorMessage = ref(null)
 const submitted = ref(false)
+const canSubmit = computed(
+  () => !categoriesLoading.value && !categoriesError.value && inquiryCategories.value.length > 0,
+)
 
 onMounted(async () => {
   categoriesLoading.value = true
   categoriesError.value = null
   try {
     const { data } = await axios.get('/api/inquiry_categories')
-    inquiryCategories.value = Array.isArray(data) ? data : [{ id: 0, name: "Other" }]
-  } catch {
-    categoriesError.value =
-      'Could not load enquiry types. Please refresh the page and try again.'
+    inquiryCategories.value = Array.isArray(data) ? data : []
+    if (!inquiryCategories.value.length) {
+      categoriesError.value =
+        'Enquiry types are not set up yet, so this form cannot be sent. Please try again later.'
+    }
+  } catch (err) {
+    categoriesError.value = apiErrorMessage(
+      err,
+      'Could not load enquiry types. Please refresh the page and try again.',
+    )
     inquiryCategories.value = []
   } finally {
     categoriesLoading.value = false
@@ -169,10 +179,14 @@ const resetForm = () => {
 
 const submit = async () => {
   errorMessage.value = null
-  // if (!form.privacy) {
-  //   errorMessage.value = 'privacy policyへの同意が必要です。'
-  //   return
-  // }
+  if (!form.privacy) {
+    errorMessage.value = 'Please agree to the privacy policy before sending.'
+    return
+  }
+  if (!form.categoryId) {
+    errorMessage.value = 'Please select an enquiry type.'
+    return
+  }
 
   submitting.value = true
   try {
@@ -187,9 +201,7 @@ const submit = async () => {
     resetForm()
     window.scrollTo({ top: 0, behavior: 'smooth' })
   } catch (e) {
-    const msg = e.response?.data?.error
-    errorMessage.value =
-      typeof msg === 'string' ? msg : 'Failed to send. Please try again in a moment.'
+    errorMessage.value = apiErrorMessage(e, 'Failed to send. Please try again in a moment.')
   } finally {
     submitting.value = false
   }

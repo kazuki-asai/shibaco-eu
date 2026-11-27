@@ -7,7 +7,10 @@
 
     <div class="container">
       <p class="intro">
-        shibaco (“we”, “us”) takes the protection of your personal data seriously. This policy explains how we handle information for the European storefront.
+        This policy explains how the European shibaco store handles personal data. It is a working template. Fields marked “Seller to complete” must be filled in before launch. It is not a substitute for advice from a lawyer.
+      </p>
+      <p class="owner-gap">
+        Seller to complete before launch: a customer email address, and the company register and VAT or invoice numbers if you have them. The controller’s name, address, and phone are loaded from the shop record when that record is available.
       </p>
 
       <section class="section" v-for="section in sections" :key="section.title">
@@ -15,7 +18,7 @@
         <div v-html="section.body" />
       </section>
 
-      <p class="updated">Last updated: 24 May 2026</p>
+      <p class="updated">Last updated: 27 November 2026</p>
 
       <div class="cta">
         <p>Questions about privacy? Contact us here.</p>
@@ -43,70 +46,95 @@ useHead({
 
 const sections = [
   {
-    title: '1. Personal data we collect',
+    title: '1. Who is responsible',
     body: `
-      <p>We may collect the following information:</p>
+      <p>The controller is the seller named on the <a href="/legal">legal notice</a>. That page shows the name, representative, address, and phone number stored for this shop. The shop record does not include a privacy email.</p>
+      <p><strong>Seller to complete:</strong> a dedicated privacy contact email. Until it is published, use the contact form and write “Privacy” in the message.</p>
+      <p>This store is operated from Japan and sells to people in Europe.</p>
+    `,
+  },
+  {
+    title: '2. Personal data we collect',
+    body: `
+      <p>Depending on what you do on the site, we process:</p>
       <ul>
-        <li>Name</li>
-        <li>Email address</li>
-        <li>Address and phone number (for shipping)</li>
-        <li>Purchase history</li>
-        <li>Payment details (processed by our payment provider; we do not store full card numbers)</li>
+        <li>Name, email, phone, and shipping address, when you check out or contact us</li>
+        <li>Order contents, the country used to quote shipping, and your confirmation at checkout that import charges are paid on delivery</li>
+        <li>Payment status. Card numbers are handled by Stripe. We do not store full card numbers.</li>
+        <li>Messages you send through the contact form</li>
+        <li>A cart saved in your browser’s local storage</li>
+        <li>Cookie and advertising identifiers, only if you accept analytics and ads</li>
       </ul>
     `,
   },
   {
-    title: '2. How we use your data',
+    title: '3. Why we use it, and the legal basis',
     body: `
-      <p>We use personal data only for these purposes:</p>
       <ul>
-        <li>Processing orders, shipping, and billing</li>
-        <li>Responding to enquiries</li>
-        <li>Sending product or campaign updates when you have opted in</li>
-        <li>Preventing fraud and misuse</li>
+        <li><strong>Contract</strong> (GDPR Art. 6(1)(b)): taking your order, charging the yen amount, shipping, and sending order emails.</li>
+        <li><strong>Legal obligation</strong> (Art. 6(1)(c)): tax and accounting records the seller is required to keep. The retention period is for the seller to confirm. Japanese export documents are often kept for 7 years; do not treat that as legal advice.</li>
+        <li><strong>Legitimate interests</strong> (Art. 6(1)(f)): securing the site, preventing fraud, and answering questions. You can object where the law allows.</li>
+        <li><strong>Consent</strong> (Art. 6(1)(a)): Google Analytics and Google Ads. We do not load those tags until you accept. You can reject them, or change your mind, with the cookie settings link in the footer.</li>
+      </ul>
+      <p>We do not send a marketing newsletter. There is no newsletter signup on this site.</p>
+    `,
+  },
+  {
+    title: '4. Who receives it',
+    body: `
+      <p>We do not sell personal data. Recipients are limited to:</p>
+      <ul>
+        <li><strong>Stripe</strong> — card payment and the checkout page</li>
+        <li><strong>The carrier</strong> — name, address, and contact details needed for delivery. <strong>Seller to complete:</strong> the carrier’s name.</li>
+        <li><strong>Google</strong> — Analytics (measurement ID G-8108T1M9BS) and Ads (AW-18390381994), only after you accept</li>
+        <li><strong>Render</strong> — hosts this website</li>
+        <li><strong>The shop platform</strong> — stores orders and enquiries</li>
+        <li>Authorities, when the law requires it</li>
       </ul>
     `,
   },
   {
-    title: '3. Sharing with third parties',
+    title: '5. Transfers outside the EU',
     body: `
-      <p>We do not sell your personal data. We share it only when necessary:</p>
+      <p>The seller and the shop system are in Japan. Japan has a European Commission adequacy decision for private-sector transfers, which can cover a transfer to a business in Japan. Stripe, Google, and Render may process data in other countries under their own safeguards (such as standard contractual clauses). Ask us if you want more detail on a specific transfer.</p>
+    `,
+  },
+  {
+    title: '6. How long we keep it',
+    body: `
+      <p>Order and accounting records are kept for as long as tax law requires. <strong>Seller to complete:</strong> the exact periods. Enquiries are kept long enough to resolve them and for a short time afterwards. The cookie choice is stored in local storage until you change it. Analytics cookies, if you accept them, follow Google’s expiry.</p>
+    `,
+  },
+  {
+    title: '7. Your rights',
+    body: `
+      <p>If GDPR applies, you can ask to access, correct, erase, or restrict your data, and you can ask for portability or object to processing based on legitimate interests. Where we rely on consent, you can withdraw it at any time. Withdrawal does not affect processing that already happened.</p>
+      <p>You can complain to a supervisory authority, in particular in the EU or EEA country where you live or work. Contact us first if you want us to fix something.</p>
+    `,
+  },
+  {
+    title: '8. Cookies and similar storage',
+    body: `
+      <p>Before you choose, Google Analytics and Google Ads are not loaded. The page sets Google Consent Mode defaults to denied. Accepting loads gtag.js and allows analytics and ad storage. Rejecting leaves those tags unloaded.</p>
       <ul>
-        <li>With your consent</li>
-        <li>With courier partners to deliver your order</li>
-        <li>With payment providers to process transactions</li>
-        <li>When required by law</li>
+        <li><strong>Cart</strong> — local storage key <code>shibaco_cart</code>. Not a cookie. Needed to remember the cart on this device.</li>
+        <li><strong>Cookie choice</strong> — local storage key <code>shibaco_cookie_consent</code>. Remembers accept or reject.</li>
+        <li><strong>Google Analytics</strong> — only after accept. Used to understand how the site is used.</li>
+        <li><strong>Google Ads</strong> — only after accept. Used to measure advertising.</li>
       </ul>
+      <p>Use “Cookie settings” in the footer to choose again. If you accepted and later reject, we stop further measurement. Cookies already set by Google may remain until they expire or you clear them in the browser.</p>
     `,
   },
   {
-    title: '4. Data security',
+    title: '9. Security',
     body: `
-      <p>We take appropriate technical and organisational measures to protect personal data against unauthorised access, loss, alteration, or disclosure.</p>
+      <p>Checkout is served over HTTPS and payment details are collected by Stripe. No method of transmission is completely secure.</p>
     `,
   },
   {
-    title: '5. Your rights',
+    title: '10. Changes',
     body: `
-      <p>You may request access to, correction of, or deletion of your personal data. Contact us via the contact form to exercise these rights under applicable EU/EEA data protection law (including GDPR).</p>
-    `,
-  },
-  {
-    title: '6. Cookies',
-    body: `
-      <p>We may use cookies to improve site experience. You can disable cookies in your browser settings; some features may then be limited.</p>
-    `,
-  },
-  {
-    title: '7. Changes to this policy',
-    body: `
-      <p>We may update this policy when laws or our services change. Material updates will be noted on this page.</p>
-    `,
-  },
-  {
-    title: '8. Contact',
-    body: `
-      <p>For privacy questions, please use the contact form on this site.</p>
+      <p>If this policy changes in a way that matters, we will update the date on this page.</p>
     `,
   },
 ]
@@ -151,7 +179,17 @@ const sections = [
   font-size: 0.92rem;
   color: #5a5a5a;
   line-height: 2;
-  margin: 0 0 48px;
+  margin: 0 0 16px;
+}
+
+.owner-gap {
+  margin: 0 0 40px;
+  padding: 14px 16px;
+  background: #f7f1e4;
+  border-left: 3px solid #b89a6a;
+  color: #3a3a3a;
+  font-size: 0.86rem;
+  line-height: 1.6;
 }
 
 .section {
@@ -186,6 +224,12 @@ const sections = [
   font-size: 0.88rem;
   color: #5a5a5a;
   line-height: 1.8;
+}
+
+.section :deep(a) {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .updated {

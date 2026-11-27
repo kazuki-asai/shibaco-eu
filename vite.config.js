@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import prerender from '@prerenderer/rollup-plugin'
 import { fileURLToPath, URL } from 'node:url'
@@ -16,7 +16,11 @@ const PRERENDER_ROUTES = [
 ]
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  const proxyTarget = env.VITE_PROXY_TARGET || 'http://host.docker.internal:3001'
+
+  return {
   plugins: [
     vue(),
     prerender({
@@ -29,13 +33,19 @@ export default defineConfig({
       server: {
         proxy: {
           '/api': {
-            target: process.env.VITE_PROXY_TARGET || 'http://host.docker.internal:3001',
+            target: proxyTarget,
             changeOrigin: true,
           },
         },
       },
       postProcess(renderedRoute) {
         renderedRoute.route = renderedRoute.originalRoute
+        if (renderedRoute.html) {
+          renderedRoute.html = renderedRoute.html.replace(
+            /https?:\/\/(?:127\.0\.0\.1|localhost|host\.docker\.internal)(?::\d+)?/gi,
+            '',
+          )
+        }
         return renderedRoute
       },
     }),
@@ -50,11 +60,11 @@ export default defineConfig({
     allowedHosts: process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.split(',') : [],
     proxy: {
       '/api': {
-        target: process.env.VITE_PROXY_TARGET || 'http://host.docker.internal:3001',
+        target: proxyTarget,
         changeOrigin: true,
       },
       '/rails': {
-        target: process.env.VITE_PROXY_TARGET || 'http://host.docker.internal:3001',
+        target: proxyTarget,
         changeOrigin: true,
         configure: (proxy) => {
           proxy.on('proxyRes', (proxyRes) => {
@@ -75,4 +85,5 @@ export default defineConfig({
       },
     },
   },
+  }
 })

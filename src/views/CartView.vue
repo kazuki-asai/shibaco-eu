@@ -15,9 +15,9 @@
               <p class="item-name">{{ item.name }}</p>
               <p class="item-meta">
                 <span v-if="item.colorName">Colour: {{ item.colorName }}</span>
-                <span v-if="item.sizeName">　Size: {{ item.sizeName }}</span>
+                <span v-if="item.sizeName"> / Size: {{ item.sizeName }}</span>
               </p>
-              <p class="item-price">¥ {{ item.price }} JPY</p>
+              <p class="item-price">{{ $money(item.price) }}</p>
             </div>
             <div class="item-qty">
               <button @click="decrement(index)">－</button>
@@ -29,7 +29,8 @@
         </ul>
 
         <div class="summary">
-          <p class="total">Total: ¥ {{ total }} JPY</p>
+          <p class="total">Subtotal: {{ $money(subtotal) }}</p>
+          <DutyNotice>Shipping is calculated at checkout from your country. It is not included in this subtotal. {{ dutyNotice }}</DutyNotice>
           <router-link to="/checkout" class="checkout-btn">Proceed to checkout</router-link>
         </div>
       </template>
@@ -40,13 +41,16 @@
 <script>
 import { computed } from 'vue'
 import { useCart } from '@/composables/useCart'
+import { dutyNotice } from '@/config/store'
+import DutyNotice from '@/components/DutyNotice.vue'
 
 export default {
+  components: { DutyNotice },
   setup() {
     const { cart, removeFromCart, updateQuantity } = useCart()
 
-    const total = computed(() =>
-      cart.value.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString()
+    const subtotal = computed(() =>
+      cart.value.reduce((sum, item) => sum + item.price * item.quantity, 0),
     )
 
     const increment = (index) => updateQuantity(index, cart.value[index].quantity + 1)
@@ -55,7 +59,7 @@ export default {
     }
     const remove = (index) => removeFromCart(index)
 
-    return { cart, total, increment, decrement, remove }
+    return { cart, subtotal, increment, decrement, remove, dutyNotice }
   },
 }
 </script>
@@ -151,6 +155,11 @@ export default {
 .summary {
   margin-top: 32px;
   text-align: right;
+}
+
+.summary :deep(.duty-notice) {
+  text-align: left;
+  margin-bottom: 16px;
 }
 
 .total {

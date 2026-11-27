@@ -6,17 +6,40 @@
     </div>
 
     <div class="container">
+      <p v-if="shopError" class="owner-gap">{{ shopError }}</p>
+      <p class="owner-gap">
+        Rows marked “Seller to complete” are not in the shop record. Do not open the store to customers until those details are filled in. This page does not invent an address, email, or registration number.
+      </p>
+
       <table class="info-table">
         <tbody>
           <tr v-for="row in items" :key="row.label">
             <th>{{ row.label }}</th>
             <td>
-              <span v-html="row.value" />
+              <span>{{ row.value }}</span>
               <RouterLink v-if="row.link" :to="row.link.to" class="table-link">{{ row.link.label }}</RouterLink>
             </td>
           </tr>
         </tbody>
       </table>
+
+      <section class="section">
+        <h2>Prices and currency</h2>
+        <p>{{ currencyNotice }} {{ dutyNotice }}</p>
+      </section>
+
+      <section class="section">
+        <h2>Delivery</h2>
+        <p>{{ deliveryCopy.summary }} Payment is taken when you place the order. Shipping rates and refused-parcel terms are on the <RouterLink to="/shipping">shipping page</RouterLink>.</p>
+      </section>
+
+      <section class="section">
+        <h2>Withdrawal</h2>
+        <p>
+          Consumers in the EU and EEA have a 14-day right of withdrawal. How to use it, and what happens with faulty goods, is on the
+          <RouterLink to="/returns">returns page</RouterLink>.
+        </p>
+      </section>
 
       <div class="cta">
         <p>Questions? We are happy to help.</p>
@@ -30,6 +53,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { useHead } from '@unhead/vue'
 import axios from 'axios'
+import { currencyNotice, deliveryCopy, dutyNotice } from '@/config/store'
+import { apiErrorMessage } from '@/utils/apiError'
+
+const SELLER_GAP = 'Seller to complete before launch'
 
 useHead({
   title: 'Legal notice | shibaco',
@@ -43,29 +70,37 @@ useHead({
 })
 
 const shop = ref(null)
+const shopError = ref(null)
+
+function shown(value) {
+  const text = value == null ? '' : String(value).trim()
+  return text || SELLER_GAP
+}
 
 onMounted(async () => {
   try {
     const { data } = await axios.get('/api/shop')
     shop.value = data?.shop ?? data
-  } catch {
-    // 取得失敗時は空のまま静的表示
+  } catch (err) {
+    shopError.value = apiErrorMessage(err, 'Seller details could not be loaded. Please refresh and try again.')
   }
 })
 
 const items = computed(() => [
-  { label: 'Business name', value: shop.value?.business_name ?? '—' },
-  { label: 'Responsible person', value: shop.value?.manager_name ?? '—' },
-  { label: 'Address', value: shop.value?.address ?? '—' },
-  { label: 'Phone', value: shop.value?.phone_number ?? '—' },
-  { label: 'Email', value: shop.value?.email ?? 'Please use the contact form' },
-  { label: 'Prices', value: 'As shown on each product page (including applicable taxes where displayed)' },
-  { label: 'Additional fees', value: 'See the shipping page for details', link: { to: '/shipping', label: 'View shipping information →' } },
-  { label: 'Payment methods', value: 'Credit card (Visa, Mastercard, American Express, and others via Stripe)' },
+  { label: 'Store', value: shown(shop.value?.name) },
+  { label: 'Seller (legal name)', value: shown(shop.value?.business_name) },
+  { label: 'Represented by', value: shown(shop.value?.manager_name) },
+  { label: 'Address', value: shown(shop.value?.address) },
+  { label: 'Phone', value: shown(shop.value?.phone_number) },
+  { label: 'Email', value: shown(shop.value?.email) },
+  { label: 'Company register', value: SELLER_GAP },
+  { label: 'VAT or invoice registration', value: SELLER_GAP },
+  { label: 'Prices', value: 'Shown on each product in Japanese yen (JPY), the currency Stripe charges' },
+  { label: 'Shipping and import charges', value: 'Shipping is the country rate from the shop. Import VAT, customs duty, and carrier fees are paid by you on delivery (DAP).', link: { to: '/shipping', label: 'View shipping information →' } },
+  { label: 'Payment methods', value: 'Payment is taken on Stripe Checkout in Japanese yen. Stripe may also show wallet buttons (such as Apple Pay or Link) and a converted currency if those are turned on in the Stripe account. This website shows Visa and Mastercard marks only.' },
   { label: 'Payment timing', value: 'Payment is charged when you place your order' },
-  { label: 'Delivery timing', value: 'Ships within 5–10 business days after order confirmation (made to order)' },
-  { label: 'Returns & exchanges', value: 'Made-to-order items cannot be returned for change-of-mind reasons.<br>For defects or incorrect items, contact us within 7 days of delivery.' },
-  { label: 'Recommended browsers', value: 'Latest Chrome, Safari, Firefox, or Edge' },
+  { label: 'Delivery timing', value: deliveryCopy.summary },
+  { label: 'Withdrawal and returns', value: 'EU and EEA consumers can withdraw within 14 days of receiving the goods. Faulty goods are handled separately.', link: { to: '/returns', label: 'View returns →' } },
 ])
 </script>
 
@@ -102,6 +137,39 @@ const items = computed(() => [
   max-width: 760px;
   margin: 0 auto;
   padding: 64px 24px 0;
+}
+
+.owner-gap {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  background: #f7f1e4;
+  border-left: 3px solid #b89a6a;
+  color: #3a3a3a;
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.section {
+  margin-bottom: 32px;
+}
+
+.section h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+
+.section p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: #3a3a3a;
+}
+
+.section a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .info-table {

@@ -2,7 +2,8 @@
   <div class="product-info">
     <span v-if="product.tag" class="product-tag">{{ product.tag }}</span>
     <h1 class="product-name">{{ product.name }}</h1>
-    <p class="product-price">¥ {{ product.price }} JPY</p>
+    <p class="product-price">{{ $money(product.price) }}</p>
+    <DutyNotice />
 
     <div v-if="product.colors && product.colors.length" class="option-group">
       <p class="option-label">Colour: <span class="option-selected">{{ selectedColor ? selectedColor.name : '' }}</span></p>
@@ -56,9 +57,10 @@
 <script>
 import { ref, computed } from 'vue'
 import DeliveryRulesModal from './DeliveryRulesModal.vue'
+import DutyNotice from '@/components/DutyNotice.vue'
 
 export default {
-  components: { DeliveryRulesModal },
+  components: { DeliveryRulesModal, DutyNotice },
   props: {
     product: {
       type: Object,

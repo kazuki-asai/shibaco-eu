@@ -7,15 +7,19 @@
 
     <div class="container">
       <section class="section">
-        <h2>Our policy</h2>
+        <h2>14-day right of withdrawal</h2>
         <p>
-          Every shibaco piece is <strong>made to order</strong>.<br />
-          We cannot accept returns or exchanges for change-of-mind reasons.<br />
-          Please check size, colour, and design carefully before you order.
+          If you buy as a consumer in the EU or EEA, you can withdraw from the contract within <strong>14 days</strong> of the day you receive the goods, without giving a reason.
+          This is the right in the Consumer Rights Directive. It is separate from a claim for a faulty item.
+        </p>
+        <p>
+          To withdraw, tell us through the contact form before the 14 days end. A clear statement is enough. You then have 14 days to send the goods back.
+          We refund the price you paid us, including the standard outbound shipping we charged, within 14 days of hearing from you. We may wait until we receive the goods back, or until you show they were sent.
+          The refund uses the original payment method.
         </p>
         <div class="notice">
-          <p><b>Because items are made to order, we cannot accept returns for reasons such as “not what I expected” or “wrong size”.</b></p>
-          <p>Orders cannot be cancelled after they are confirmed.</p>
+          <p><b>Seller to confirm before relying on a narrower rule:</b> return shipping for a change-of-mind withdrawal is paid by you, unless the item is faulty or we failed to tell you that you pay it.</p>
+          <p>Goods made to your specifications, or clearly personalised, can be exempt from withdrawal. Choosing a standard colour and size is often not enough for that exemption. Do not refuse a change-of-mind return on that basis until a lawyer has confirmed it for these products.</p>
         </div>
       </section>
 
@@ -30,8 +34,8 @@
           <li>Damage in transit that makes the item unusable</li>
         </ul>
         <div class="notice">
-          <p>Please contact us <strong>within 7 days of delivery</strong>.</p>
-          <p>We cannot process claims after that window.</p>
+          <p>Please contact us as soon as you can, and within <strong>14 days of delivery</strong> where you can.</p>
+          <p>Statutory rights for goods that are not as described, faulty, or not fit for purpose still apply and are not limited to that window. In the EU that conformity period is generally two years from delivery.</p>
         </div>
       </section>
 
@@ -44,7 +48,7 @@
             <span class="step-num">01</span>
             <div>
               <p class="step-title">Contact us</p>
-              <p class="step-desc">Within 7 days of delivery, use the contact form and include your order number, a description of the issue, and photos.</p>
+              <p class="step-desc">Use the contact form. For a withdrawal, say that you are withdrawing. For a fault, include your order number, what is wrong, and photos.</p>
             </div>
           </li>
           <li>
@@ -58,7 +62,7 @@
             <span class="step-num">03</span>
             <div>
               <p class="step-title">Return & reship</p>
-              <p class="step-desc">If the issue is our responsibility, shibaco covers return shipping. Replacement items typically ship within 5–10 business days after we receive the return.</p>
+              <p class="step-desc">If the issue is our responsibility, shibaco covers return shipping. Replacement items usually ship within {{ deliveryCopy.production }} after we receive the return.</p>
             </div>
           </li>
         </ol>
@@ -69,9 +73,10 @@
       <section class="section">
         <h2>Notes</h2>
         <ul class="notes-list">
-          <li>Items that have been worn or washed are not eligible.</li>
+          <li>You may examine the goods as you would in a shop. Wear or washing beyond that can reduce a withdrawal refund by the loss in value.</li>
           <li>If a replacement is unavailable, we will offer a refund.</li>
-          <li>Refunds are issued to the original payment method; timing depends on your card issuer.</li>
+          <li>Refunds of what this shop charged are issued to the original payment method. Import VAT and duty you paid to the carrier are between you and the carrier or customs, unless we charged them (we do not, under DAP).</li>
+          <li>If you refuse delivery, return shipping and carrier fees may be deducted. The exact deduction is still for the seller to set. Contact us before refusing a parcel.</li>
         </ul>
       </section>
 
@@ -86,13 +91,14 @@
 
 <script setup>
 import { useHead } from '@unhead/vue'
+import { deliveryCopy } from '@/config/store'
 
 useHead({
   title: 'Returns & exchanges | shibaco',
   meta: [
     {
       name: 'description',
-      content: 'shibaco returns and exchanges policy for made-to-order apparel.',
+      content: '14-day withdrawal, faulty goods, and returns for shibaco Europe.',
     },
   ],
   link: [{ rel: 'canonical', href: 'https://eu.shiba-co.com/returns' }],

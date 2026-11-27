@@ -14,7 +14,7 @@
           </RouterLink>
           <div class="product-info">
             <p class="product-name">{{ product.name }}</p>
-            <p class="product-price">¥ {{ product.price }} JPY</p>
+            <p class="product-price">{{ $money(product.price) }}</p>
           </div>
         </article>
       </div>
@@ -30,6 +30,7 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import { displayProductTag } from '@/utils/productTag'
+import { normalizeProduct } from '@/utils/mediaUrl'
 
 export default {
   setup() {
@@ -38,16 +39,19 @@ export default {
     fetchProducts()
 
     async function fetchProducts() {
-      const url = "/api/products"
-      const res = await axios.get(url, { params: { shop_code: import.meta.env.VITE_SHOP_CODE } })
-      const items = res.data.products ?? res.data
-      newArrivals.value = items.map(product => ({
-        ...product,
-        tag: displayProductTag(product.tag),
-        images: (product.images || []).map(img =>
-          img.replace(/^http:\/\/(localhost|host\.docker\.internal):3001/, '')
-        ),
-      }))
+      try {
+        const res = await axios.get('/api/products', {
+          params: { shop_code: import.meta.env.VITE_SHOP_CODE },
+        })
+        const items = res.data.products ?? res.data
+        newArrivals.value = (Array.isArray(items) ? items : []).map((product) => {
+          const normalized = normalizeProduct(product)
+          return { ...normalized, tag: displayProductTag(normalized.tag) }
+        })
+      } catch (err) {
+        newArrivals.value = []
+        console.error(err)
+      }
     }
 
     return {

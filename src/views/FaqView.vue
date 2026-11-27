@@ -27,6 +27,7 @@
 
 <script setup>
 import { useHead } from '@unhead/vue'
+import { currencyNotice, deliveryCopy, dutyNotice } from '@/config/store'
 
 useHead({
   title: 'FAQ | shibaco',
@@ -57,7 +58,7 @@ const faqs = [
       },
       {
         q: 'Will you add more colours or designs?',
-        a: 'We release new pieces regularly. Follow us on social media and check this site for updates.',
+        a: 'We release new pieces regularly. Check this site for updates.',
       },
     ],
   },
@@ -66,11 +67,16 @@ const faqs = [
     items: [
       {
         q: 'Can I cancel after ordering?',
-        a: 'Because items are made to order, we cannot accept cancellations after an order is confirmed. Please check size and product details before ordering.',
+        a: 'If you buy as a consumer in the EU or EEA, you can withdraw within 14 days of receiving the goods. See the returns page for how. Please still check size and colour before you order.',
+        link: { to: '/returns', label: 'View returns →' },
       },
       {
         q: 'Which payment methods do you accept?',
-        a: 'We accept major credit cards (Visa, Mastercard, American Express, and more via Stripe Checkout).',
+        a: 'You pay on Stripe Checkout. The amount we send is Japanese yen. Stripe may also offer a converted currency, Link, or Apple Pay when those are enabled on the Stripe account. This website does not show wallet logos.',
+      },
+      {
+        q: 'Which currency do you charge?',
+        a: `${currencyNotice} ${dutyNotice}`,
       },
       {
         q: 'Can I get an invoice or receipt?',
@@ -83,7 +89,7 @@ const faqs = [
     items: [
       {
         q: 'How long does delivery take?',
-        a: 'Because each piece is made to order, we usually ship within <strong>5–10 business days</strong> after confirming your order. International delivery then typically takes about 7–14 days depending on the destination.',
+        a: deliveryCopy.summary,
       },
       {
         q: 'How much is shipping?',
@@ -104,12 +110,13 @@ const faqs = [
     category: 'Returns & exchanges',
     items: [
       {
-        q: 'Can I return or exchange an item?',
-        a: 'Made-to-order items cannot be returned or exchanged for change-of-mind reasons. We will help if there is a manufacturing defect or incorrect item.<br/>Please contact us via the contact form.',
+        q: 'Can I return an item?',
+        a: 'EU and EEA consumers can withdraw within 14 days of delivery. We also put right items that are faulty, incorrect, or damaged. The returns page has the steps.',
+        link: { to: '/returns', label: 'View returns →' },
       },
       {
         q: 'What if my order arrives damaged or incorrect?',
-        a: 'Contact us within 7 days of delivery via the contact form. Photos of the issue help us resolve it quickly.',
+        a: 'Contact us with photos and your order number. You do not have to wait, and statutory rights are not limited to 14 days.',
       },
     ],
   },

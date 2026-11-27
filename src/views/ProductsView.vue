@@ -6,9 +6,9 @@
         <h1 class="section-title">All products</h1>
       </div>
 
-      <div v-if="products.length === 0" class="loading">
-        Loading...
-      </div>
+      <div v-if="loading" class="loading">Loading...</div>
+      <div v-else-if="loadError" class="loading">{{ loadError }}</div>
+      <div v-else-if="products.length === 0" class="loading">No products to show.</div>
 
       <div v-else class="product-grid">
         <article v-for="product in products" :key="product.id" class="product-card">
@@ -18,7 +18,7 @@
           </RouterLink>
           <div class="product-info">
             <p class="product-name">{{ product.name }}</p>
-            <p class="product-price">¥ {{ product.price }} JPY</p>
+            <p class="product-price">{{ $money(product.price) }}</p>
           </div>
         </article>
       </div>
@@ -32,6 +32,8 @@ import { useRoute } from 'vue-router'
 import { useHead } from '@unhead/vue'
 import axios from 'axios'
 import { displayProductTag } from '@/utils/productTag'
+import { apiErrorMessage } from '@/utils/apiError'
+import { normalizeProduct } from '@/utils/mediaUrl'
 
 const SHOP_CODE = import.meta.env.VITE_SHOP_CODE
 
@@ -50,27 +52,36 @@ export default {
 
     const route = useRoute()
     const products = ref([])
+    const loading = ref(true)
+    const loadError = ref(null)
 
     watch(() => route.query.category_id, fetchProducts, { immediate: true })
 
     async function fetchProducts() {
+      loading.value = true
+      loadError.value = null
       const categoryId = route.query.category_id
       const url = categoryId ? '/api/products/search_products' : '/api/products'
       const params = { shop_code: SHOP_CODE }
       if (categoryId) params.product_category_id = categoryId
 
-      const res = await axios.get(url, { params })
-      const items = res.data.products ?? res.data
-      products.value = items.map(product => ({
-        ...product,
-        tag: displayProductTag(product.tag),
-        images: (product.images || []).map(img =>
-          img.replace(/^http:\/\/(localhost|host\.docker\.internal):3001/, '')
-        ),
-      }))
+      try {
+        const res = await axios.get(url, { params })
+        const items = res.data.products ?? res.data
+        products.value = (Array.isArray(items) ? items : []).map((product) => {
+          const normalized = normalizeProduct(product)
+          return { ...normalized, tag: displayProductTag(normalized.tag) }
+        })
+      } catch (err) {
+        products.value = []
+        loadError.value = apiErrorMessage(err, 'Products could not be loaded. Please refresh and try again.')
+        console.error(err)
+      } finally {
+        loading.value = false
+      }
     }
 
-    return { products }
+    return { products, loading, loadError }
   },
 }
 </script>

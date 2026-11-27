@@ -2,6 +2,7 @@
   <section class="section">
     <div class="container">
       <div v-if="loading" class="loading">Loading...</div>
+      <div v-else-if="loadError" class="not-found">{{ loadError }}</div>
       <div v-else-if="product" class="product-detail">
         <ProductDetailLeftArea :product="product" />
         <ProductDetailRightArea :product="product" @add-to-cart="addToCart" />
@@ -20,6 +21,9 @@ import ProductDetailLeftArea from '@/components/ProductDetail/ProductDetailLeftA
 import ProductDetailRightArea from '@/components/ProductDetail/ProductDetailRightArea.vue'
 import { useCart } from '@/composables/useCart'
 import { displayProductTag } from '@/utils/productTag'
+import { CURRENCY } from '@/config/store'
+import { apiErrorMessage } from '@/utils/apiError'
+import { normalizeProduct } from '@/utils/mediaUrl'
 
 const SITE_ORIGIN = 'https://eu.shiba-co.com'
 
@@ -43,7 +47,7 @@ function buildProductJsonLd(product, productId) {
     offers: {
       '@type': 'Offer',
       price,
-      priceCurrency: 'JPY',
+      priceCurrency: CURRENCY,
       availability: 'https://schema.org/InStock',
       url: `${SITE_ORIGIN}/products/${productId}`,
     },
@@ -57,6 +61,7 @@ export default {
     const router = useRouter()
     const product = ref(null)
     const loading = ref(true)
+    const loadError = ref(null)
     const { addToCart: _addToCart } = useCart()
 
     useHead({
@@ -99,21 +104,24 @@ export default {
     }
 
     onMounted(async () => {
-      const res = await axios.get(`/api/products/${route.params.id}`, {
-        params: { shop_code: import.meta.env.VITE_SHOP_CODE },
-      })
-      const p = res.data
-      product.value = {
-        ...p,
-        tag: displayProductTag(p.tag),
-        images: (p.images || []).map(img =>
-          img.replace(/^http:\/\/(localhost|host\.docker\.internal):3001/, '')
-        ),
+      try {
+        const res = await axios.get(`/api/products/${route.params.id}`, {
+          params: { shop_code: import.meta.env.VITE_SHOP_CODE },
+        })
+        const p = normalizeProduct(res.data)
+        product.value = {
+          ...p,
+          tag: displayProductTag(p.tag),
+        }
+      } catch (err) {
+        loadError.value = apiErrorMessage(err, 'This product could not be loaded. Please refresh and try again.')
+        console.error(err)
+      } finally {
+        loading.value = false
       }
-      loading.value = false
     })
 
-    return { product, loading, addToCart }
+    return { product, loading, loadError, addToCart }
   },
 }
 </script>
